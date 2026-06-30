@@ -36,6 +36,7 @@ export function AulaGate({ children, areaLabel }: { children: ReactNode; areaLab
 
   useEffect(() => {
     const salvo = lerAcesso()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza acesso salvo no localStorage no mount, intencional
     if (salvo) setAcesso(salvo)
     setPronto(true)
   }, [])

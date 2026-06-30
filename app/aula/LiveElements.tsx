@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { createClient } from '@supabase/supabase-js'
-import { useAulaSession } from './AulaGate'
 import { OfferDrawer, OfferCard } from './Offer'
 import { type Oferta } from './config-types'
 import { trackAula } from './track'
@@ -179,6 +178,7 @@ function ReactionFab() {
   const fire = (emoji: string, el: HTMLElement) => {
     const rect = el.getBoundingClientRect()
     const id = nextId.current++
+    // eslint-disable-next-line react-hooks/purity -- jitter aleatório em event handler (não em render), comportamento intencional
     const x = rect.left + rect.width / 2 + (Math.random() * 14 - 7)
     const y = rect.top
     setFloats(f => [...f, { id, emoji, x, y }])
@@ -243,7 +243,6 @@ function ReactionFab() {
 // Mensagens do roteiro aparecem por tempo. Mensagens reais
 // são inseridas no Supabase e distribuídas via polling.
 export function LiveChatFull({ startedAt, roteiro, oferta, chatOffsetSegundos }: { startedAt: string; roteiro: RoteiroItem[]; oferta?: Oferta; chatOffsetSegundos?: number }) {
-  const session = useAulaSession()
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -279,6 +278,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, chatOffsetSegundos }:
     const elapsed = Math.max(0, (Date.now() - start) / 1000)
 
     if (elapsed >= pitch) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza estado da oferta com o tempo decorrido do vídeo no mount, intencional
       setOfferState(dismissed ? 'card' : 'drawer')
       return
     }
