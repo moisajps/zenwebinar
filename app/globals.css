@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Verde Sage / Alecrim */
+  --color-sage-50: #F2F5F0;
+  --color-sage-100: #DDE6D8;
+  --color-sage-200: #BCCFB4;
+  --color-sage-300: #96B08B;
+  --color-sage-400: #728F66;
+  --color-sage-600: #415538;
+  --color-sage-700: #30402A;
+  --color-sage-800: #1F2B1C;
+  --color-sage-900: #111810;
+
+  /* Gold / Champagne */
+  --color-gold-100: #F8F0DC;
+  --color-gold-300: #DBBD72;
+  --color-gold-400: #C9A44E;
+  --color-gold-500: #B8903A;
+  --color-gold-600: #9A7530;
+
+  /* Rose / Dia das Mães */
+  --color-rose-50: #FEF3F1;
+  --color-rose-100: #F9DDD9;
+  --color-rose-200: #EDADA5;
+  --color-rose-300: #D97E76;
+  --color-rose-400: #C06058;
+  --color-rose-600: #8A3E38;
+  --color-rose-900: #3D1A17;
+
+  /* Cream */
+  --color-cream-50: #FEFEFB;
+  --color-cream-100: #FAF8F2;
+  --color-cream-200: #F4EFE0;
+  --color-cream-300: #EBE2C6;
+  --color-cream-400: #DDD0A4;
+
+  /* Ink / Text */
+  --color-ink: #18180F;
+  --color-ink-70: #3A3A30;
+  --color-ink-40: #7A7A6A;
+  --color-ink-15: #D8D8CC;
+
+  /* Brand aliases */
+  --color-brand-primary: #B3CBA9;
+  --color-brand-cta: #B8903A;
+  --color-brand-cta-hover: #C9A44E;
+  --color-brand-cream: #F4EFE0;
+  --color-brand-dark: #415538;
+  --color-brand-deeper: #30402A;
+
+  /* Typography */
+  --font-display: "DM Serif Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Background */
+  --color-page-bg: #F7F4EE;
+}
+
+body {
+  background: var(--color-page-bg);
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans);
+}
+
+/* ── Scroll reveal ─────────────────────────────── */
+.animate-in-base {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease;
+}
+.animate-in-visible {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+/* ── CTA shimmer ───────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.cta-shimmer {
+  background-image: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 60%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ── Hero float elements ──────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  40%       { transform: translateY(-16px) rotate(5deg); }
+  70%       { transform: translateY(-8px) rotate(-3deg); }
+}
+.animate-float      { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: float 9s ease-in-out infinite 2s; }
+.animate-float-med  { animation: float 7s ease-in-out infinite 4s; }
+
+/* ── Admin scrollbar ──────────────────────────── */
+.custom-scroll::-webkit-scrollbar       { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
