@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react'
 import type { NotificacoesCompra } from './config-types'
 
-// Nomes femininos BR — público da Carol. Sem sobrenome p/ soar natural.
+// Nomes femininos BR genéricos. Sem sobrenome p/ soar natural.
 const NOMES = [
   'Juliana', 'Patrícia', 'Fernanda', 'Camila', 'Aline', 'Vanessa', 'Daniela',
   'Bruna', 'Letícia', 'Mariana', 'Renata', 'Tatiane', 'Sandra', 'Cláudia',
