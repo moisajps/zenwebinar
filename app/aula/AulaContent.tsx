@@ -281,7 +281,8 @@ function FaseEncerrada(_props: { estado: Extract<EstadoAula, { fase: 'replay' }>
 // ─────────────────────────────────────────────────────────────
 
 function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; startedAt: string; roteiro: RoteiroItem[] }) {
-  const aulaDate = new Date(startedAt).toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' })
+  const aulaDate = new Date(startedAt).toLocaleDateString('sv-SE', { timeZone: config.timezone })
+  const oferta = config.oferta?.ativo ? config.oferta : undefined
 
   // Tracking: acesso (1x) + heartbeat (a cada 30s) — base de retenção e simultâneos
   useEffect(() => {
@@ -321,10 +322,10 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
         {/* Vídeo — define a altura da row no desktop */}
         <div className="relative w-full bg-black md:flex-1 md:rounded-xl md:overflow-hidden md:self-start" style={{ aspectRatio: '16/9' }}>
           <YouTubePlayer videoId={config.youtubeVideoId} autoplay />
-          {config.notificacoes?.ativo && config.oferta && (
+          {config.notificacoes?.ativo && oferta && (
             <PurchaseNotifications
               startedAt={startedAt}
-              pitchSegundos={config.oferta.pitchSegundos}
+              pitchSegundos={oferta.pitchSegundos}
               cfg={config.notificacoes}
             />
           )}
@@ -346,7 +347,7 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
             (senão cresce com as mensagens e não rola). */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col md:flex-none md:w-[400px] md:self-stretch md:relative md:rounded-xl md:border md:border-white/10">
           <div className="flex flex-col flex-1 min-h-0 md:absolute md:inset-0">
-            <LiveChatFull startedAt={startedAt} roteiro={roteiro} oferta={config.oferta} chatOffsetSegundos={config.chatOffsetSegundos} />
+            <LiveChatFull startedAt={startedAt} roteiro={roteiro} oferta={oferta} timezone={config.timezone} chatOffsetSegundos={config.chatOffsetSegundos} />
           </div>
         </div>
       </div>
@@ -372,6 +373,7 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
 function FaseReplay({ config }: { config: AulaConfig }) {
   // Data BRT de hoje — usada só pra tracking (cta_click) da oferta no replay
   const aulaDate = new Date().toLocaleDateString('sv-SE', { timeZone: config.timezone })
+  const oferta = config.oferta?.ativo ? config.oferta : undefined
 
   return (
     <div className="relative z-10 flex-1 flex flex-col">
@@ -389,9 +391,9 @@ function FaseReplay({ config }: { config: AulaConfig }) {
       </div>
 
       {/* Oferta — mesmo card da aula ao vivo (link/preço/CTA reais + UTM) */}
-      {config.oferta && (
+      {oferta && (
         <div className="pb-10">
-          <OfferCard oferta={config.oferta} aulaDate={aulaDate} />
+          <OfferCard oferta={oferta} aulaDate={aulaDate} />
         </div>
       )}
     </div>

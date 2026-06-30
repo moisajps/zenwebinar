@@ -242,7 +242,7 @@ function ReactionFab() {
 // Chat sincronizado — recebe o instante em que a aula começou e o roteiro por prop.
 // Mensagens do roteiro aparecem por tempo. Mensagens reais
 // são inseridas no Supabase e distribuídas via polling.
-export function LiveChatFull({ startedAt, roteiro, oferta, chatOffsetSegundos }: { startedAt: string; roteiro: RoteiroItem[]; oferta?: Oferta; chatOffsetSegundos?: number }) {
+export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetSegundos }: { startedAt: string; roteiro: RoteiroItem[]; oferta?: Oferta; timezone: string; chatOffsetSegundos?: number }) {
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -255,8 +255,8 @@ export function LiveChatFull({ startedAt, roteiro, oferta, chatOffsetSegundos }:
   const atBottomRef = useRef(true)
   const scrolledToBottomRef = useRef(false)
 
-  // Aula date para filtrar no Supabase (yyyy-mm-dd BRT)
-  const aulaDate = new Date(startedAt).toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' })
+  // Aula date para filtrar no Supabase (yyyy-mm-dd no timezone configurado)
+  const aulaDate = new Date(startedAt).toLocaleDateString('sv-SE', { timeZone: timezone })
 
   // ── Timing da oferta ──
   // O drawer sobe quando elapsed >= pitchSegundos. Se o usuário já fechou
