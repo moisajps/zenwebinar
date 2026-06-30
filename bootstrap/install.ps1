@@ -1,6 +1,6 @@
 # bootstrap/install.ps1 — Instala os pre-requisitos no Windows.
 # Idempotente: instala so o que falta. Falha de forma legivel.
-# >>> Trocar placeholder: Webinar ao Vivo
+# >>> Trocar placeholder: zenwebinar
 $ErrorActionPreference = "Stop"
 
 function Say($m){ Write-Host "`n$m" -ForegroundColor Cyan }
@@ -8,7 +8,7 @@ function Ok($m){ Write-Host "OK: $m" -ForegroundColor Green }
 function Fail($m,$h){ Write-Host "`nERRO: $m" -ForegroundColor Red; Write-Host "-> $h"; exit 1 }
 function Have($c){ return [bool](Get-Command $c -ErrorAction SilentlyContinue) }
 
-Say "Webinar ao Vivo - instalando o que falta na sua maquina"
+Say "zenwebinar - instalando o que falta na sua maquina"
 
 if (-not (Have "winget")) {
   Fail "winget nao encontrado" "Atualize o 'App Installer' pela Microsoft Store e rode de novo."

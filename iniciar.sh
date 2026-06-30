@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # iniciar.sh — Ponto de partida (macOS/Linux).
 # Verifica o ambiente e abre o Claude JÁ conduzindo a configuração.
-# >>> Trocar placeholders: Webinar ao Vivo, colocar seu webinar no ar
+# >>> Trocar placeholders: zenwebinar, colocar seu webinar no ar
 cd "$(dirname "$0")" || exit 1
 
 echo ""
 echo "============================================================"
-echo " Webinar ao Vivo — colocar seu webinar no ar"
+echo " zenwebinar — colocar seu webinar no ar"
 echo "============================================================"
 
 # 1. Se faltar node ou git, instala automaticamente (bootstrap)

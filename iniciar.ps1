@@ -1,11 +1,11 @@
 # iniciar.ps1 — Ponto de partida (Windows).
 # Verifica o ambiente e abre o Claude JA conduzindo a configuracao.
-# >>> Trocar placeholders: Webinar ao Vivo, colocar seu webinar no ar
+# >>> Trocar placeholders: zenwebinar, colocar seu webinar no ar
 Set-Location $PSScriptRoot
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " Webinar ao Vivo - colocar seu webinar no ar"
+Write-Host " zenwebinar - colocar seu webinar no ar"
 Write-Host "============================================================"
 
 # 1. Se faltar node ou git, instala automaticamente (bootstrap)

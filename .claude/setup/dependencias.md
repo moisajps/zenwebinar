@@ -1,4 +1,4 @@
-# Dependências do Webinar ao Vivo
+# Dependências do zenwebinar
 
 ## Runtime (obrigatório)
 

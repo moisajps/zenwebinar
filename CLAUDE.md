@@ -17,7 +17,7 @@
 
 ## O que é este projeto
 
-Webinar ao Vivo é um produto instalável que permite ao cliente colocar seu webinar no ar sem precisar de conhecimento técnico. O cliente é não-técnico: toda configuração é feita via diálogo com o Claude, em português. O conteúdo do webinar (textos, vídeos, configurações) é gerenciado pelo painel `/admin`, que grava as informações no banco de dados — nada disso vai em código.
+zenwebinar é um produto instalável que permite ao cliente colocar seu webinar no ar sem precisar de conhecimento técnico. O cliente é não-técnico: toda configuração é feita via diálogo com o Claude, em português. O conteúdo do webinar (textos, vídeos, configurações) é gerenciado pelo painel `/admin`, que grava as informações no banco de dados — nada disso vai em código.
 
 ## Convenções
 

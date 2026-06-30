@@ -2,7 +2,7 @@
 // check.mjs — Verifica se a máquina tem o necessário para rodar o projeto.
 // Obrigatórios: Node.js e git. Claude Code é opcional (pode usar o app desktop).
 // Imprime instruções por sistema operacional para o que faltar.
-// >>> Trocar placeholder: Webinar ao Vivo
+// >>> Trocar placeholder: zenwebinar
 import { execFileSync } from "node:child_process";
 
 const isWin = process.platform === "win32";
@@ -23,7 +23,7 @@ function check(cmd, label) {
 }
 
 console.log("=".repeat(56));
-console.log("\u{1f50d} Verificando pre-requisitos do Webinar ao Vivo");
+console.log("\u{1f50d} Verificando pre-requisitos do zenwebinar");
 console.log("=".repeat(56) + "\n");
 
 const hasNode = check("node", "Node.js");

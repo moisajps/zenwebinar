@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # bootstrap/install.sh — Instala os pré-requisitos no macOS/Linux.
 # Idempotente: detecta o que já existe e instala só o que falta. Falha de forma legível.
-# >>> Trocar placeholder: Webinar ao Vivo
+# >>> Trocar placeholder: zenwebinar
 set -uo pipefail
 
 say()  { printf "\n\033[1;36m%s\033[0m\n" "$1"; }
 ok()   { printf "\033[32m✔ %s\033[0m\n" "$1"; }
 fail() { printf "\n\033[31m✖ ERRO: %s\033[0m\n→ %s\n" "$1" "$2" >&2; exit 1; }
 
-say "Webinar ao Vivo — instalando o que falta na sua máquina"
+say "zenwebinar — instalando o que falta na sua máquina"
 
 OS="$(uname -s)"
 
