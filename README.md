@@ -1,4 +1,4 @@
-# Webinar ao Vivo
+# zenwebinar
 
 Página de aula ao vivo (vídeo + chat + oferta) instalável, configurável por um admin.
 O produto inclui player sincronizado com YouTube, chat simulado por roteiro, contador
@@ -10,12 +10,12 @@ com experiência de aula ao vivo.
 
 **Mac/Linux:**
 ```bash
-git clone <URL> webinar-ao-vivo && cd webinar-ao-vivo && bash iniciar.sh
+git clone https://github.com/moisajps/zenwebinar.git zenwebinar && cd zenwebinar && bash iniciar.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-git clone <URL> webinar-ao-vivo; cd webinar-ao-vivo; .\iniciar.ps1
+git clone https://github.com/moisajps/zenwebinar.git zenwebinar; cd zenwebinar; .\iniciar.ps1
 ```
 
 O assistente (Claude) conduz a configuração passo a passo — Supabase, criação do admin
