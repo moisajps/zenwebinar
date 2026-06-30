@@ -10,6 +10,6 @@ const config: Config = {
     '^.+\\.tsx?$': ['ts-jest', {}],
     '^.+\\.js$': ['ts-jest', { tsconfig: { allowJs: true } }],
   },
-  transformIgnorePatterns: ['/node_modules/(?!(nanoid)/)'],
+  transformIgnorePatterns: ['/node_modules/'],
 }
 export default config

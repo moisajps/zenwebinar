@@ -2,60 +2,60 @@
 @import "tailwindcss";
 
 @theme {
-  /* Verde Sage / Alecrim */
-  --color-sage-50: #F2F5F0;
-  --color-sage-100: #DDE6D8;
-  --color-sage-200: #BCCFB4;
-  --color-sage-300: #96B08B;
-  --color-sage-400: #728F66;
-  --color-sage-600: #415538;
-  --color-sage-700: #30402A;
-  --color-sage-800: #1F2B1C;
-  --color-sage-900: #111810;
+  /* Scale A (neutral placeholder — replace with project palette) */
+  --color-sage-50: #f8fafc;
+  --color-sage-100: #f1f5f9;
+  --color-sage-200: #e2e8f0;
+  --color-sage-300: #cbd5e1;
+  --color-sage-400: #94a3b8;
+  --color-sage-600: #475569;
+  --color-sage-700: #334155;
+  --color-sage-800: #1e293b;
+  --color-sage-900: #0f172a;
 
-  /* Gold / Champagne */
-  --color-gold-100: #F8F0DC;
-  --color-gold-300: #DBBD72;
-  --color-gold-400: #C9A44E;
-  --color-gold-500: #B8903A;
-  --color-gold-600: #9A7530;
+  /* Scale B (neutral placeholder — replace with project palette) */
+  --color-gold-100: #fef9ee;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
 
-  /* Rose / Dia das Mães */
-  --color-rose-50: #FEF3F1;
-  --color-rose-100: #F9DDD9;
-  --color-rose-200: #EDADA5;
-  --color-rose-300: #D97E76;
-  --color-rose-400: #C06058;
-  --color-rose-600: #8A3E38;
-  --color-rose-900: #3D1A17;
+  /* Scale C (neutral placeholder — replace with project palette) */
+  --color-rose-50: #fafafa;
+  --color-rose-100: #f4f4f5;
+  --color-rose-200: #e4e4e7;
+  --color-rose-300: #d4d4d8;
+  --color-rose-400: #a1a1aa;
+  --color-rose-600: #52525b;
+  --color-rose-900: #18181b;
 
-  /* Cream */
-  --color-cream-50: #FEFEFB;
-  --color-cream-100: #FAF8F2;
-  --color-cream-200: #F4EFE0;
-  --color-cream-300: #EBE2C6;
-  --color-cream-400: #DDD0A4;
+  /* Scale D (neutral placeholder — replace with project palette) */
+  --color-cream-50: #ffffff;
+  --color-cream-100: #f9fafb;
+  --color-cream-200: #f3f4f6;
+  --color-cream-300: #e5e7eb;
+  --color-cream-400: #d1d5db;
 
   /* Ink / Text */
-  --color-ink: #18180F;
-  --color-ink-70: #3A3A30;
-  --color-ink-40: #7A7A6A;
-  --color-ink-15: #D8D8CC;
+  --color-ink: #111827;
+  --color-ink-70: #374151;
+  --color-ink-40: #6b7280;
+  --color-ink-15: #d1d5db;
 
   /* Brand aliases */
-  --color-brand-primary: #B3CBA9;
-  --color-brand-cta: #B8903A;
-  --color-brand-cta-hover: #C9A44E;
-  --color-brand-cream: #F4EFE0;
-  --color-brand-dark: #415538;
-  --color-brand-deeper: #30402A;
+  --color-brand-primary: #6366f1;
+  --color-brand-cta: #f59e0b;
+  --color-brand-cta-hover: #fbbf24;
+  --color-brand-cream: #f3f4f6;
+  --color-brand-dark: #4338ca;
+  --color-brand-deeper: #312e81;
 
   /* Typography */
   --font-display: "DM Serif Display", serif;
   --font-sans: "Inter", sans-serif;
 
   /* Background */
-  --color-page-bg: #F7F4EE;
+  --color-page-bg: #f9fafb;
 }
 
 body {
