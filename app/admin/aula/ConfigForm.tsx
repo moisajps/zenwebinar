@@ -4,17 +4,42 @@ import type { AulaConfig, Oferta, NotificacoesCompra, Branding } from '@/app/aul
 
 // ---------------------------------------------------------------------------
 // Helpers para converter inicioAt entre ISO UTC e datetime-local (YYYY-MM-DDTHH:MM)
+// Cientes do fuso do evento (cfg.timezone), não do navegador.
 // ---------------------------------------------------------------------------
-function isoToLocal(iso: string | null): string {
+
+// ISO UTC → 'YYYY-MM-DDTHH:mm' wall-clock in tz (for the datetime-local input value)
+function isoToLocal(iso: string | null, tz: string): string {
   if (!iso) return ''
   const d = new Date(iso)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).formatToParts(d).map(x => [x.type, x.value]),
+  )
+  // en-CA gives YYYY-MM-DD; hour may be '24' at midnight → normalize
+  const hh = p.hour === '24' ? '00' : p.hour
+  return `${p.year}-${p.month}-${p.day}T${hh}:${p.minute}`
 }
 
-function localToIso(local: string): string | null {
+// 'YYYY-MM-DDTHH:mm' wall-clock in tz → ISO UTC string
+function localToIso(local: string, tz: string): string | null {
   if (!local) return null
-  return new Date(local).toISOString()
+  const [datePart, timePart] = local.split('T')
+  const [y, mo, d] = datePart.split('-').map(Number)
+  const [h, mi] = (timePart ?? '00:00').split(':').map(Number)
+  // Guess the instant as if the wall time were UTC, then correct by tz offset at that instant.
+  const guess = Date.UTC(y, mo - 1, d, h, mi)
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    }).formatToParts(new Date(guess)).map(x => [x.type, x.value]),
+  )
+  const asTz = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour === '24' ? '0' : parts.hour), Number(parts.minute), Number(parts.second))
+  const offset = asTz - guess // how far tz is ahead of UTC at this instant
+  return new Date(guess - offset).toISOString()
 }
 
 // ---------------------------------------------------------------------------
@@ -129,10 +154,11 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
         </label>
 
         <label className={labelCls}>
-          <span className={spanCls}>Início da aula (horário local)</span>
+          <span className={spanCls}>Início da aula (horário no fuso configurado)</span>
           <input className={inputCls} type="datetime-local"
-            value={isoToLocal(cfg.inicioAt)}
-            onChange={e => set('inicioAt', localToIso(e.target.value))} />
+            value={isoToLocal(cfg.inicioAt, cfg.timezone)}
+            onChange={e => set('inicioAt', localToIso(e.target.value, cfg.timezone))} />
+          <span className={spanCls}>Horário no fuso configurado ({cfg.timezone}).</span>
         </label>
 
         <label className={labelCls}>
@@ -201,7 +227,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox"
             className="w-4 h-4 accent-amber-500"
-            checked={cfg.recorrencia !== null}
+            checked={cfg.recorrencia != null}
             onChange={e => set('recorrencia', e.target.checked
               ? { weekday: cfg.recorrencia?.weekday ?? 1, fromDate: cfg.recorrencia?.fromDate ?? '' }
               : null
@@ -209,7 +235,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
           <span className="text-sm text-white/80">Habilitar recorrência semanal</span>
         </label>
 
-        {cfg.recorrencia !== null && (
+        {cfg.recorrencia != null && (
           <>
             <label className={labelCls}>
               <span className={spanCls}>Dia da semana (0 = dom, 1 = seg, … 6 = sáb)</span>
