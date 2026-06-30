@@ -3,8 +3,9 @@ const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
     '^server-only$': '<rootDir>/__mocks__/server-only.js',
+    '^@/lib/supabase$': '<rootDir>/__mocks__/supabase.js',
+    '^@/(.*)$': '<rootDir>/$1',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {}],

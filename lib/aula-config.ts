@@ -1,0 +1,46 @@
+import 'server-only'
+import { supabaseAdmin } from '@/lib/supabase'
+import { SEED_CONFIG, SEED_ROTEIRO } from '@/content/config'
+import type { AulaConfig } from '@/app/aula/config-types'
+
+type Row = Record<string, unknown>
+const pick = <T,>(v: unknown, fallback: T): T => (v === null || v === undefined ? fallback : (v as T))
+
+export function rowToConfig(row: Row | null): AulaConfig {
+  if (!row) return SEED_CONFIG
+  const s = SEED_CONFIG
+  return {
+    titulo: pick(row.titulo, s.titulo),
+    seoDescricao: pick(row.seo_descricao, s.seoDescricao),
+    youtubeVideoId: pick(row.youtube_video_id, s.youtubeVideoId),
+    inicioAt: pick(row.inicio_at as string | null, s.inicioAt),
+    duracaoMin: pick(row.duracao_min, s.duracaoMin),
+    recorrencia: pick(row.recorrencia as AulaConfig['recorrencia'], s.recorrencia),
+    timezone: pick(row.timezone, s.timezone),
+    replayHabilitado: pick(row.replay_habilitado, s.replayHabilitado),
+    pitchSegundos: pick(row.pitch_segundos, s.pitchSegundos),
+    chatOffsetSegundos: pick(row.chat_offset_segundos, s.chatOffsetSegundos),
+    aoVivoFimSegundos: pick(row.ao_vivo_fim_segundos, s.aoVivoFimSegundos),
+    contadorPiso: pick(row.contador_piso, s.contadorPiso),
+    contadorMultiplicador: Number(pick(row.contador_multiplicador, s.contadorMultiplicador)),
+    oferta: pick(row.oferta as AulaConfig['oferta'], s.oferta),
+    notificacoes: pick(row.notificacoes as AulaConfig['notificacoes'], s.notificacoes),
+    materiais: pick(row.materiais as AulaConfig['materiais'], s.materiais),
+    branding: pick(row.branding as AulaConfig['branding'], s.branding),
+  }
+}
+
+export async function getActiveConfig(): Promise<AulaConfig> {
+  const { data } = await supabaseAdmin.from('aula_config').select('*').eq('ativa', true).maybeSingle()
+  return rowToConfig(data ?? null)
+}
+
+export async function getRoteiro(): Promise<{ delay: number; name: string; msg: string }[]> {
+  const { data } = await supabaseAdmin
+    .from('aula_roteiro')
+    .select('delay_segundos, nome, mensagem, ordem')
+    .order('delay_segundos', { ascending: true })
+    .order('ordem', { ascending: true })
+  if (!data || data.length === 0) return SEED_ROTEIRO
+  return data.map(r => ({ delay: r.delay_segundos as number, name: r.nome as string, msg: r.mensagem as string }))
+}
