@@ -4,6 +4,7 @@ import type { AulaConfig, Oferta, NotificacoesCompra, Branding } from '@/app/aul
 import { Tabs } from '@/components/admin/Tabs'
 import { InfoTip } from '@/components/admin/Tooltip'
 import { AulaPreview } from '@/components/admin/AulaPreview'
+import { PageHeader } from '@/components/admin/PageHeader'
 
 // ---------------------------------------------------------------------------
 // Helpers para converter inicioAt entre ISO UTC e datetime-local (YYYY-MM-DDTHH:MM)
@@ -128,7 +129,28 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
   const branding = cfg.branding ?? defaultBranding
 
   return (
-    <div className="flex flex-col gap-6 admin-text lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8">
+    <div className="flex flex-col gap-6 admin-text">
+      <PageHeader
+        title="Configuração da aula"
+        actions={
+          <div className="flex items-center gap-3">
+            {msg && (
+              <p className={`text-sm ${msg === 'Salvo!' ? 'text-green-400' : 'text-red-400'}`}>
+                {msg}
+              </p>
+            )}
+            <button
+              onClick={salvar}
+              disabled={salvando}
+              className="admin-accent font-bold rounded-full px-6 py-2 disabled:opacity-50 transition-colors"
+            >
+              {salvando ? 'Salvando...' : 'Salvar configuração'}
+            </button>
+          </div>
+        }
+      />
+
+      <div className="lg:grid lg:grid-cols-[1fr_400px] lg:gap-8 lg:items-start">
       <div className="flex flex-col gap-6">
 
       {/* ------------------------------------------------------------------ */}
@@ -147,15 +169,15 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
               {/* Tab: Aula */}
               {/* ---------------------------------------------------------- */}
               {active === 'aula' && (
-                <div className="flex flex-col gap-4">
+                <div className="md:grid md:grid-cols-2 md:gap-4 flex flex-col gap-4">
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Título da aula</span>
                     <input className={inputCls} value={cfg.titulo}
                       onChange={e => set('titulo', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Descrição SEO</span>
                     <input className={inputCls} value={cfg.seoDescricao}
                       onChange={e => set('seoDescricao', e.target.value)} />
@@ -297,9 +319,9 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
               {/* Tab: Oferta */}
               {/* ---------------------------------------------------------- */}
               {active === 'oferta' && (
-                <div className="flex flex-col gap-4">
+                <div className="md:grid md:grid-cols-2 md:gap-4 flex flex-col gap-4">
 
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer md:col-span-2">
                     <input type="checkbox"
                       className="w-4 h-4 accent-amber-500"
                       checked={oferta.ativo}
@@ -323,13 +345,13 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
                       onChange={e => setOferta('patrocinado', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Banner imagem (URL)</span>
                     <input className={inputCls} value={oferta.bannerImagem}
                       onChange={e => setOferta('bannerImagem', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Marca logo (URL)</span>
                     <input className={inputCls} value={oferta.marcaLogo}
                       onChange={e => setOferta('marcaLogo', e.target.value)} />
@@ -347,7 +369,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
                       onChange={e => setOferta('marca', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Descrição</span>
                     <textarea className={inputCls + ' resize-none'} rows={3} value={oferta.descricao}
                       onChange={e => setOferta('descricao', e.target.value)} />
@@ -359,7 +381,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
                       onChange={e => setOferta('cta', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Link da oferta</span>
                     <input className={inputCls} value={oferta.link}
                       onChange={e => setOferta('link', e.target.value)} />
@@ -383,9 +405,9 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
               {/* Tab: Notificações */}
               {/* ---------------------------------------------------------- */}
               {active === 'notif' && (
-                <div className="flex flex-col gap-4">
+                <div className="md:grid md:grid-cols-2 md:gap-4 flex flex-col gap-4">
 
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer md:col-span-2">
                     <input type="checkbox"
                       className="w-4 h-4 accent-amber-500"
                       checked={notif.ativo}
@@ -421,7 +443,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
                       onChange={e => setNotif('total', Number(e.target.value))} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Label do produto</span>
                     <input className={inputCls} value={notif.produtoLabel}
                       onChange={e => setNotif('produtoLabel', e.target.value)} />
@@ -433,7 +455,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
               {/* Tab: Branding */}
               {/* ---------------------------------------------------------- */}
               {active === 'branding' && (
-                <div className="flex flex-col gap-4">
+                <div className="md:grid md:grid-cols-2 md:gap-4 flex flex-col gap-4">
 
                   <label className={labelCls}>
                     <span className={spanCls}>Marca (nome exibido)</span>
@@ -453,7 +475,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
                       onChange={e => setBranding('teamName', e.target.value)} />
                   </label>
 
-                  <label className={labelCls}>
+                  <label className={`${labelCls} md:col-span-2`}>
                     <span className={spanCls}>Imagem OG (caminho)</span>
                     <input className={inputCls} value={branding.ogImage}
                       onChange={e => setBranding('ogImage', e.target.value)} />
@@ -465,27 +487,12 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
         </Tabs>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Save — always visible, outside the tabs */}
-      {/* ------------------------------------------------------------------ */}
-      <button
-        onClick={salvar}
-        disabled={salvando}
-        className="admin-accent font-bold rounded-full py-3 mt-2 disabled:opacity-50 transition-colors"
-      >
-        {salvando ? 'Salvando...' : 'Salvar configuração'}
-      </button>
-
-      {msg && (
-        <p className={`text-sm ${msg === 'Salvo!' ? 'text-green-400' : 'text-red-400'}`}>
-          {msg}
-        </p>
-      )}
       </div>
 
       {/* right: sticky preview */}
       <div data-tour="config-preview" className="lg:sticky lg:top-6">
         <AulaPreview cfg={cfg} />
+      </div>
       </div>
     </div>
   )
