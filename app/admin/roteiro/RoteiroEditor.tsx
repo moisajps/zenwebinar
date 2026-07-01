@@ -1,21 +1,29 @@
 'use client'
-import { useMemo, useState } from 'react'
-import { parseRoteiro } from '@/lib/roteiro-parse'
+import { useState } from 'react'
+import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 
-export function RoteiroEditor({ inicial }: { inicial: string }) {
-  const [texto, setTexto] = useState(inicial)
+type Linha = { tempo: string; nome: string; mensagem: string }
+
+export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: string; msg: string }[] }) {
+  const [linhas, setLinhas] = useState<Linha[]>(
+    inicial.length ? inicial.map(r => ({ tempo: String(r.delay), nome: r.name, mensagem: r.msg })) : [{ tempo: '', nome: '', mensagem: '' }],
+  )
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const preview = useMemo(() => {
-    try { return { rows: parseRoteiro(texto), erro: '' } }
-    catch (e) { return { rows: [], erro: (e as Error).message } }
-  }, [texto])
+  const set = (i: number, k: keyof Linha, v: string) => setLinhas(ls => ls.map((l, j) => j === i ? { ...l, [k]: v } : l))
+  const add = () => setLinhas(ls => [...ls, { tempo: '', nome: '', mensagem: '' }])
+  const rm = (i: number) => setLinhas(ls => ls.filter((_, j) => j !== i))
+  const move = (i: number, d: -1 | 1) => setLinhas(ls => {
+    const j = i + d; if (j < 0 || j >= ls.length) return ls
+    const c = [...ls]; [c[i], c[j]] = [c[j], c[i]]; return c
+  })
 
   const salvar = async () => {
     setSalvando(true); setMsg('')
     const r = await fetch('/api/admin/aula/roteiro', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ linhas: linhas.filter(l => l.nome.trim() || l.mensagem.trim() || l.tempo.trim()) }),
     })
     const j = await r.json()
     setSalvando(false)
@@ -23,18 +31,29 @@ export function RoteiroEditor({ inicial }: { inicial: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <textarea value={texto} onChange={e => setTexto(e.target.value)} rows={16}
-        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm"
-        placeholder={'10 | Ana | Boa noite!\n01:30 | Bia | Olá'} />
-      {preview.erro
-        ? <p className="text-rose-400 text-sm">{preview.erro}</p>
-        : <p className="text-white/50 text-sm">{preview.rows.length} mensagens válidas.</p>}
-      <button onClick={salvar} disabled={salvando || !!preview.erro}
-        className="bg-amber-500 text-black font-bold rounded-full py-3 disabled:opacity-50">
+    <div className="flex flex-col gap-3" data-tour="roteiro-editor">
+      <div className="grid grid-cols-[80px_140px_1fr_auto] gap-2 text-[11px] admin-muted px-1">
+        <span>Tempo</span><span>Nome</span><span>Mensagem</span><span></span>
+      </div>
+      {linhas.map((l, i) => (
+        <div key={i} className="grid grid-cols-[80px_140px_1fr_auto] gap-2 items-center">
+          <input value={l.tempo} onChange={e => set(i, 'tempo', e.target.value)} placeholder="90 / 1:30" className="admin-input rounded-lg px-2 py-2 text-sm" />
+          <input value={l.nome} onChange={e => set(i, 'nome', e.target.value)} placeholder="Nome" className="admin-input rounded-lg px-2 py-2 text-sm" />
+          <input value={l.mensagem} onChange={e => set(i, 'mensagem', e.target.value)} placeholder="Mensagem" className="admin-input rounded-lg px-2 py-2 text-sm" />
+          <div className="flex items-center gap-1">
+            <button onClick={() => move(i, -1)} aria-label="Subir" className="admin-muted hover:admin-text p-1"><ArrowUp size={15} /></button>
+            <button onClick={() => move(i, 1)} aria-label="Descer" className="admin-muted hover:admin-text p-1"><ArrowDown size={15} /></button>
+            <button onClick={() => rm(i)} aria-label="Remover" className="admin-muted hover:admin-text p-1"><Trash2 size={15} /></button>
+          </div>
+        </div>
+      ))}
+      <button onClick={add} className="self-start flex items-center gap-1.5 text-[13px] admin-muted hover:admin-text px-1 py-1">
+        <Plus size={15} /> Adicionar mensagem
+      </button>
+      <button onClick={salvar} disabled={salvando} className="admin-accent font-bold rounded-full py-3 disabled:opacity-50 mt-1">
         {salvando ? 'Salvando...' : 'Salvar roteiro'}
       </button>
-      {msg && <p className="text-sm text-white/70">{msg}</p>}
+      {msg && <p className="text-sm admin-muted">{msg}</p>}
     </div>
   )
 }

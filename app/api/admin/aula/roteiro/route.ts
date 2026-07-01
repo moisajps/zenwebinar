@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-ssr'
 import { supabaseAdmin } from '@/lib/supabase'
-import { parseRoteiro } from '@/lib/roteiro-parse'
+import { parseRoteiro, normalizarLinhas } from '@/lib/roteiro-parse'
 
 export async function POST(req: NextRequest) {
   const sb = await createSupabaseServer()
   const { data: { user } } = await sb.auth.getUser()
   if (!user) return NextResponse.json({ ok: false }, { status: 401 })
 
-  const { texto } = await req.json()
+  const body = await req.json()
   let linhas
-  try { linhas = parseRoteiro(String(texto ?? '')) }
-  catch (e) { return NextResponse.json({ ok: false, erro: (e as Error).message }, { status: 400 }) }
+  try {
+    linhas = Array.isArray(body?.linhas)
+      ? normalizarLinhas(body.linhas)
+      : parseRoteiro(String(body?.texto ?? ''))
+  } catch (e) {
+    return NextResponse.json({ ok: false, erro: (e as Error).message }, { status: 400 })
+  }
 
   await supabaseAdmin.from('aula_roteiro').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   if (linhas.length > 0) {

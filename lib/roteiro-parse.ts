@@ -1,4 +1,4 @@
-function parseTempo(raw: string): number {
+export function parseTempo(raw: string): number {
   const t = raw.trim()
   if (/^\d+$/.test(t)) return parseInt(t, 10)
   const parts = t.split(':').map(p => p.trim())
@@ -7,6 +7,20 @@ function parseTempo(raw: string): number {
     return nums.reduce((acc, n) => acc * 60 + n, 0)
   }
   throw new Error(`Tempo inválido: "${raw}"`)
+}
+
+export function normalizarLinhas(
+  linhas: { tempo: string | number; nome: string; mensagem: string }[],
+): { delay: number; name: string; msg: string }[] {
+  return linhas.map((l, i) => {
+    const nome = String(l.nome ?? '').trim()
+    const msg = String(l.mensagem ?? '').trim()
+    if (!nome || !msg) throw new Error(`Linha ${i + 1}: nome e mensagem são obrigatórios.`)
+    let delay: number
+    try { delay = parseTempo(String(l.tempo)) }
+    catch { throw new Error(`Linha ${i + 1}: tempo inválido "${l.tempo}".`) }
+    return { delay, name: nome, msg }
+  })
 }
 
 export function parseRoteiro(text: string): { delay: number; name: string; msg: string }[] {
