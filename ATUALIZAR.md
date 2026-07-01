@@ -3,6 +3,11 @@
 Este guia explica como uma instalação existente do zenwebinar recebe uma nova
 versão do código **sem refazer o setup** e **sem perder a configuração**.
 
+> **Jeito fácil:** rode o comando **`/atualizar`** numa sessão do Claude aberta na
+> pasta do projeto — ele conduz tudo abaixo automaticamente (detecta o cenário,
+> preserva sua config, aplica só as migrations novas via `schema_migrations`, builda
+> e ajuda no deploy). O resto deste guia é o processo manual equivalente.
+
 > **Regra de ouro:** toda a configuração do cliente vive FORA do código —
 > no `.env.local` (chaves) e no banco Supabase (conteúdo do webinar, editado
 > pelo `/admin`). Atualizar o código nunca toca nisso.
