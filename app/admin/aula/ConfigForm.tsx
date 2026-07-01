@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import type { AulaConfig, Oferta, NotificacoesCompra, Branding } from '@/app/aula/config-types'
+import { Tabs } from '@/components/admin/Tabs'
+import { InfoTip } from '@/components/admin/Tooltip'
 
 // ---------------------------------------------------------------------------
 // Helpers para converter inicioAt entre ISO UTC e datetime-local (YYYY-MM-DDTHH:MM)
@@ -77,13 +79,11 @@ const defaultBranding: Branding = {
 }
 
 // ---------------------------------------------------------------------------
-// Styled primitives
+// Styled primitives (token-based)
 // ---------------------------------------------------------------------------
-const inputCls = 'bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white w-full focus:outline-none focus:border-amber-500/60'
+const inputCls = 'admin-input rounded-lg px-3 py-2 w-full'
 const labelCls = 'flex flex-col gap-1'
-const spanCls = 'text-sm text-white/60'
-const sectionCls = 'flex flex-col gap-4 border border-white/10 rounded-xl p-4'
-const sectionTitleCls = 'text-sm font-semibold text-amber-400 uppercase tracking-wider'
+const spanCls = 'admin-muted text-sm'
 
 // ---------------------------------------------------------------------------
 // Component
@@ -127,308 +127,349 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
   const branding = cfg.branding ?? defaultBranding
 
   return (
-    <div className="flex flex-col gap-6 text-white">
+    <div className="flex flex-col gap-6 admin-text">
 
       {/* ------------------------------------------------------------------ */}
-      {/* Bloco: Aula */}
+      {/* Tabs */}
       {/* ------------------------------------------------------------------ */}
-      <div className={sectionCls}>
-        <p className={sectionTitleCls}>Aula</p>
+      <div data-tour="config-tabs">
+        <Tabs tabs={[
+          { id: 'aula', label: 'Aula' },
+          { id: 'oferta', label: 'Oferta' },
+          { id: 'notif', label: 'Notificações' },
+          { id: 'branding', label: 'Branding' },
+        ]}>
+          {(active) => (
+            <>
+              {/* ---------------------------------------------------------- */}
+              {/* Tab: Aula */}
+              {/* ---------------------------------------------------------- */}
+              {active === 'aula' && (
+                <div className="flex flex-col gap-4">
 
-        <label className={labelCls}>
-          <span className={spanCls}>Título da aula</span>
-          <input className={inputCls} value={cfg.titulo}
-            onChange={e => set('titulo', e.target.value)} />
-        </label>
+                  <label className={labelCls}>
+                    <span className={spanCls}>Título da aula</span>
+                    <input className={inputCls} value={cfg.titulo}
+                      onChange={e => set('titulo', e.target.value)} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Descrição SEO</span>
-          <input className={inputCls} value={cfg.seoDescricao}
-            onChange={e => set('seoDescricao', e.target.value)} />
-        </label>
+                  <label className={labelCls}>
+                    <span className={spanCls}>Descrição SEO</span>
+                    <input className={inputCls} value={cfg.seoDescricao}
+                      onChange={e => set('seoDescricao', e.target.value)} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>YouTube Video ID</span>
-          <input className={inputCls} value={cfg.youtubeVideoId}
-            onChange={e => set('youtubeVideoId', e.target.value)} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      YouTube Video ID
+                      <InfoTip text="ID do vídeo do YouTube (a parte depois de v= na URL)." />
+                    </span>
+                    <input className={inputCls} value={cfg.youtubeVideoId}
+                      onChange={e => set('youtubeVideoId', e.target.value)} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Início da aula (horário no fuso configurado)</span>
-          <input className={inputCls} type="datetime-local"
-            value={isoToLocal(cfg.inicioAt, cfg.timezone)}
-            onChange={e => set('inicioAt', localToIso(e.target.value, cfg.timezone))} />
-          <span className={spanCls}>Horário no fuso configurado ({cfg.timezone}).</span>
-        </label>
+                  <label className={labelCls}>
+                    <span className={spanCls}>Início da aula (horário no fuso configurado)</span>
+                    <input className={inputCls} type="datetime-local"
+                      value={isoToLocal(cfg.inicioAt, cfg.timezone)}
+                      onChange={e => set('inicioAt', localToIso(e.target.value, cfg.timezone))} />
+                    <span className={spanCls}>Horário no fuso configurado ({cfg.timezone}).</span>
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Duração (minutos)</span>
-          <input className={inputCls} type="number" min={1}
-            value={cfg.duracaoMin}
-            onChange={e => set('duracaoMin', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className={spanCls}>Duração (minutos)</span>
+                    <input className={inputCls} type="number" min={1}
+                      value={cfg.duracaoMin}
+                      onChange={e => set('duracaoMin', Number(e.target.value))} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Timezone</span>
-          <input className={inputCls} value={cfg.timezone}
-            onChange={e => set('timezone', e.target.value)} />
-        </label>
+                  <label className={labelCls}>
+                    <span className={spanCls}>Timezone</span>
+                    <input className={inputCls} value={cfg.timezone}
+                      onChange={e => set('timezone', e.target.value)} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Pitch (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={cfg.pitchSegundos}
-            onChange={e => set('pitchSegundos', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      Pitch (segundos)
+                      <InfoTip text="Segundo do vídeo em que o card de oferta sobe no chat." />
+                    </span>
+                    <input className={inputCls} type="number" min={0}
+                      value={cfg.pitchSegundos}
+                      onChange={e => set('pitchSegundos', Number(e.target.value))} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Chat offset (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={cfg.chatOffsetSegundos}
-            onChange={e => set('chatOffsetSegundos', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      Chat offset (segundos)
+                      <InfoTip text="Ajuste fino: adianta (+) ou atrasa (−) o chat scriptado para sincronizar com o vídeo." />
+                    </span>
+                    <input className={inputCls} type="number" min={0}
+                      value={cfg.chatOffsetSegundos}
+                      onChange={e => set('chatOffsetSegundos', Number(e.target.value))} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Fim ao vivo (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={cfg.aoVivoFimSegundos}
-            onChange={e => set('aoVivoFimSegundos', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      Fim ao vivo (segundos)
+                      <InfoTip text="Segundo em que o selo muda de 'Ao vivo' para 'Encerrado'." />
+                    </span>
+                    <input className={inputCls} type="number" min={0}
+                      value={cfg.aoVivoFimSegundos}
+                      onChange={e => set('aoVivoFimSegundos', Number(e.target.value))} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Contador piso</span>
-          <input className={inputCls} type="number" min={0}
-            value={cfg.contadorPiso}
-            onChange={e => set('contadorPiso', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      Contador piso
+                      <InfoTip text="Nunca mostrar menos que este número de espectadores ao vivo." />
+                    </span>
+                    <input className={inputCls} type="number" min={0}
+                      value={cfg.contadorPiso}
+                      onChange={e => set('contadorPiso', Number(e.target.value))} />
+                  </label>
 
-        <label className={labelCls}>
-          <span className={spanCls}>Contador multiplicador</span>
-          <input className={inputCls} type="number" min={0} step={0.01}
-            value={cfg.contadorMultiplicador}
-            onChange={e => set('contadorMultiplicador', Number(e.target.value))} />
-        </label>
+                  <label className={labelCls}>
+                    <span className="admin-muted text-sm flex items-center gap-1">
+                      Contador multiplicador
+                      <InfoTip text="Multiplica os espectadores reais (ex.: 1.5 = +50%). Use 1 para o valor real." />
+                    </span>
+                    <input className={inputCls} type="number" min={0} step={0.01}
+                      value={cfg.contadorMultiplicador}
+                      onChange={e => set('contadorMultiplicador', Number(e.target.value))} />
+                  </label>
 
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox"
-            className="w-4 h-4 accent-amber-500"
-            checked={cfg.replayHabilitado}
-            onChange={e => set('replayHabilitado', e.target.checked)} />
-          <span className="text-sm text-white/80">Replay habilitado</span>
-        </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox"
+                      className="w-4 h-4 accent-amber-500"
+                      checked={cfg.replayHabilitado}
+                      onChange={e => set('replayHabilitado', e.target.checked)} />
+                    <span className="text-sm flex items-center gap-1">
+                      Replay habilitado
+                      <InfoTip text="Se ligado, após a janela ao vivo a página mostra o replay em vez de 'encerrada'." />
+                    </span>
+                  </label>
+
+                  {/* Recorrência semanal */}
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox"
+                      className="w-4 h-4 accent-amber-500"
+                      checked={cfg.recorrencia != null}
+                      onChange={e => set('recorrencia', e.target.checked
+                        ? { weekday: cfg.recorrencia?.weekday ?? 1, fromDate: cfg.recorrencia?.fromDate ?? '' }
+                        : null
+                      )} />
+                    <span className="text-sm flex items-center gap-1">
+                      Habilitar recorrência semanal
+                      <InfoTip text="Se ligado, a aula se repete toda semana no dia/horário definidos." />
+                    </span>
+                  </label>
+
+                  {cfg.recorrencia != null && (
+                    <>
+                      <label className={labelCls}>
+                        <span className={spanCls}>Dia da semana (0 = dom, 1 = seg, … 6 = sáb)</span>
+                        <input className={inputCls} type="number" min={0} max={6}
+                          value={cfg.recorrencia?.weekday ?? 1}
+                          onChange={e => set('recorrencia', {
+                            weekday: Number(e.target.value),
+                            fromDate: cfg.recorrencia?.fromDate ?? '',
+                          })} />
+                      </label>
+
+                      <label className={labelCls}>
+                        <span className={spanCls}>A partir de (data, YYYY-MM-DD)</span>
+                        <input className={inputCls} type="date"
+                          value={cfg.recorrencia?.fromDate ?? ''}
+                          onChange={e => set('recorrencia', {
+                            weekday: cfg.recorrencia?.weekday ?? 1,
+                            fromDate: e.target.value,
+                          })} />
+                      </label>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* ---------------------------------------------------------- */}
+              {/* Tab: Oferta */}
+              {/* ---------------------------------------------------------- */}
+              {active === 'oferta' && (
+                <div className="flex flex-col gap-4">
+
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox"
+                      className="w-4 h-4 accent-amber-500"
+                      checked={oferta.ativo}
+                      onChange={e => setOferta('ativo', e.target.checked)} />
+                    <span className="text-sm flex items-center gap-1">
+                      Oferta ativa
+                      <InfoTip text="Liga/desliga a exibição da oferta (drawer + card) na aula." />
+                    </span>
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Pitch da oferta (segundos)</span>
+                    <input className={inputCls} type="number" min={0}
+                      value={oferta.pitchSegundos}
+                      onChange={e => setOferta('pitchSegundos', Number(e.target.value))} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Patrocinado (texto)</span>
+                    <input className={inputCls} value={oferta.patrocinado}
+                      onChange={e => setOferta('patrocinado', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Banner imagem (URL)</span>
+                    <input className={inputCls} value={oferta.bannerImagem}
+                      onChange={e => setOferta('bannerImagem', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Marca logo (URL)</span>
+                    <input className={inputCls} value={oferta.marcaLogo}
+                      onChange={e => setOferta('marcaLogo', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Marca título</span>
+                    <input className={inputCls} value={oferta.marcaTitulo}
+                      onChange={e => setOferta('marcaTitulo', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Marca</span>
+                    <input className={inputCls} value={oferta.marca}
+                      onChange={e => setOferta('marca', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Descrição</span>
+                    <textarea className={inputCls + ' resize-none'} rows={3} value={oferta.descricao}
+                      onChange={e => setOferta('descricao', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>CTA (texto do botão)</span>
+                    <input className={inputCls} value={oferta.cta}
+                      onChange={e => setOferta('cta', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Link da oferta</span>
+                    <input className={inputCls} value={oferta.link}
+                      onChange={e => setOferta('link', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Card chamada</span>
+                    <input className={inputCls} value={oferta.cardChamada}
+                      onChange={e => setOferta('cardChamada', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Card preço</span>
+                    <input className={inputCls} value={oferta.cardPreco}
+                      onChange={e => setOferta('cardPreco', e.target.value)} />
+                  </label>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------------- */}
+              {/* Tab: Notificações */}
+              {/* ---------------------------------------------------------- */}
+              {active === 'notif' && (
+                <div className="flex flex-col gap-4">
+
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox"
+                      className="w-4 h-4 accent-amber-500"
+                      checked={notif.ativo}
+                      onChange={e => setNotif('ativo', e.target.checked)} />
+                    <span className="text-sm">Notificações ativas</span>
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Início após pitch (segundos)</span>
+                    <input className={inputCls} type="number" min={0}
+                      value={notif.inicioAposPitchSegundos}
+                      onChange={e => setNotif('inicioAposPitchSegundos', Number(e.target.value))} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Intervalo mínimo (segundos)</span>
+                    <input className={inputCls} type="number" min={0}
+                      value={notif.intervaloMinSegundos}
+                      onChange={e => setNotif('intervaloMinSegundos', Number(e.target.value))} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Intervalo máximo (segundos)</span>
+                    <input className={inputCls} type="number" min={0}
+                      value={notif.intervaloMaxSegundos}
+                      onChange={e => setNotif('intervaloMaxSegundos', Number(e.target.value))} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Total de notificações</span>
+                    <input className={inputCls} type="number" min={0}
+                      value={notif.total}
+                      onChange={e => setNotif('total', Number(e.target.value))} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Label do produto</span>
+                    <input className={inputCls} value={notif.produtoLabel}
+                      onChange={e => setNotif('produtoLabel', e.target.value)} />
+                  </label>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------------- */}
+              {/* Tab: Branding */}
+              {/* ---------------------------------------------------------- */}
+              {active === 'branding' && (
+                <div className="flex flex-col gap-4">
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Marca (nome exibido)</span>
+                    <input className={inputCls} value={branding.marca}
+                      onChange={e => setBranding('marca', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Label da área do aluno</span>
+                    <input className={inputCls} value={branding.areaLabel}
+                      onChange={e => setBranding('areaLabel', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Nome da equipe</span>
+                    <input className={inputCls} value={branding.teamName}
+                      onChange={e => setBranding('teamName', e.target.value)} />
+                  </label>
+
+                  <label className={labelCls}>
+                    <span className={spanCls}>Imagem OG (caminho)</span>
+                    <input className={inputCls} value={branding.ogImage}
+                      onChange={e => setBranding('ogImage', e.target.value)} />
+                  </label>
+                </div>
+              )}
+            </>
+          )}
+        </Tabs>
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Bloco: Recorrência */}
-      {/* ------------------------------------------------------------------ */}
-      <div className={sectionCls}>
-        <p className={sectionTitleCls}>Recorrência semanal</p>
-
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox"
-            className="w-4 h-4 accent-amber-500"
-            checked={cfg.recorrencia != null}
-            onChange={e => set('recorrencia', e.target.checked
-              ? { weekday: cfg.recorrencia?.weekday ?? 1, fromDate: cfg.recorrencia?.fromDate ?? '' }
-              : null
-            )} />
-          <span className="text-sm text-white/80">Habilitar recorrência semanal</span>
-        </label>
-
-        {cfg.recorrencia != null && (
-          <>
-            <label className={labelCls}>
-              <span className={spanCls}>Dia da semana (0 = dom, 1 = seg, … 6 = sáb)</span>
-              <input className={inputCls} type="number" min={0} max={6}
-                value={cfg.recorrencia?.weekday ?? 1}
-                onChange={e => set('recorrencia', {
-                  weekday: Number(e.target.value),
-                  fromDate: cfg.recorrencia?.fromDate ?? '',
-                })} />
-            </label>
-
-            <label className={labelCls}>
-              <span className={spanCls}>A partir de (data, YYYY-MM-DD)</span>
-              <input className={inputCls} type="date"
-                value={cfg.recorrencia?.fromDate ?? ''}
-                onChange={e => set('recorrencia', {
-                  weekday: cfg.recorrencia?.weekday ?? 1,
-                  fromDate: e.target.value,
-                })} />
-            </label>
-          </>
-        )}
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Bloco: Oferta */}
-      {/* ------------------------------------------------------------------ */}
-      <div className={sectionCls}>
-        <p className={sectionTitleCls}>Oferta</p>
-
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox"
-            className="w-4 h-4 accent-amber-500"
-            checked={oferta.ativo}
-            onChange={e => setOferta('ativo', e.target.checked)} />
-          <span className="text-sm text-white/80">Oferta ativa</span>
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Pitch da oferta (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={oferta.pitchSegundos}
-            onChange={e => setOferta('pitchSegundos', Number(e.target.value))} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Patrocinado (texto)</span>
-          <input className={inputCls} value={oferta.patrocinado}
-            onChange={e => setOferta('patrocinado', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Banner imagem (URL)</span>
-          <input className={inputCls} value={oferta.bannerImagem}
-            onChange={e => setOferta('bannerImagem', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Marca logo (URL)</span>
-          <input className={inputCls} value={oferta.marcaLogo}
-            onChange={e => setOferta('marcaLogo', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Marca título</span>
-          <input className={inputCls} value={oferta.marcaTitulo}
-            onChange={e => setOferta('marcaTitulo', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Marca</span>
-          <input className={inputCls} value={oferta.marca}
-            onChange={e => setOferta('marca', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Descrição</span>
-          <textarea className={inputCls + ' resize-none'} rows={3} value={oferta.descricao}
-            onChange={e => setOferta('descricao', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>CTA (texto do botão)</span>
-          <input className={inputCls} value={oferta.cta}
-            onChange={e => setOferta('cta', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Link da oferta</span>
-          <input className={inputCls} value={oferta.link}
-            onChange={e => setOferta('link', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Card chamada</span>
-          <input className={inputCls} value={oferta.cardChamada}
-            onChange={e => setOferta('cardChamada', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Card preço</span>
-          <input className={inputCls} value={oferta.cardPreco}
-            onChange={e => setOferta('cardPreco', e.target.value)} />
-        </label>
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Bloco: Notificações de compra */}
-      {/* ------------------------------------------------------------------ */}
-      <div className={sectionCls}>
-        <p className={sectionTitleCls}>Notificações de compra</p>
-
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox"
-            className="w-4 h-4 accent-amber-500"
-            checked={notif.ativo}
-            onChange={e => setNotif('ativo', e.target.checked)} />
-          <span className="text-sm text-white/80">Notificações ativas</span>
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Início após pitch (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={notif.inicioAposPitchSegundos}
-            onChange={e => setNotif('inicioAposPitchSegundos', Number(e.target.value))} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Intervalo mínimo (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={notif.intervaloMinSegundos}
-            onChange={e => setNotif('intervaloMinSegundos', Number(e.target.value))} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Intervalo máximo (segundos)</span>
-          <input className={inputCls} type="number" min={0}
-            value={notif.intervaloMaxSegundos}
-            onChange={e => setNotif('intervaloMaxSegundos', Number(e.target.value))} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Total de notificações</span>
-          <input className={inputCls} type="number" min={0}
-            value={notif.total}
-            onChange={e => setNotif('total', Number(e.target.value))} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Label do produto</span>
-          <input className={inputCls} value={notif.produtoLabel}
-            onChange={e => setNotif('produtoLabel', e.target.value)} />
-        </label>
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Bloco: Branding */}
-      {/* ------------------------------------------------------------------ */}
-      <div className={sectionCls}>
-        <p className={sectionTitleCls}>Branding</p>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Marca (nome exibido)</span>
-          <input className={inputCls} value={branding.marca}
-            onChange={e => setBranding('marca', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Label da área do aluno</span>
-          <input className={inputCls} value={branding.areaLabel}
-            onChange={e => setBranding('areaLabel', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Nome da equipe</span>
-          <input className={inputCls} value={branding.teamName}
-            onChange={e => setBranding('teamName', e.target.value)} />
-        </label>
-
-        <label className={labelCls}>
-          <span className={spanCls}>Imagem OG (caminho)</span>
-          <input className={inputCls} value={branding.ogImage}
-            onChange={e => setBranding('ogImage', e.target.value)} />
-        </label>
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Save */}
+      {/* Save — always visible, outside the tabs */}
       {/* ------------------------------------------------------------------ */}
       <button
         onClick={salvar}
         disabled={salvando}
-        className="bg-amber-500 text-black font-bold rounded-full py-3 mt-2 disabled:opacity-50 hover:bg-amber-400 transition-colors"
+        className="admin-accent font-bold rounded-full py-3 mt-2 disabled:opacity-50 transition-colors"
       >
         {salvando ? 'Salvando...' : 'Salvar configuração'}
       </button>
