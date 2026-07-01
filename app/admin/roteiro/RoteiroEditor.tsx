@@ -2,17 +2,24 @@
 import { useState } from 'react'
 import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 
-type Linha = { tempo: string; nome: string; mensagem: string }
+type Linha = { id: number; tempo: string; nome: string; mensagem: string }
+
+// Module-level counter — monotonically incrementing, stable across re-renders,
+// safe to call during useState initializer (not a React ref).
+let _idCounter = 0
+const nextId = () => ++_idCounter
 
 export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: string; msg: string }[] }) {
-  const [linhas, setLinhas] = useState<Linha[]>(
-    inicial.length ? inicial.map(r => ({ tempo: String(r.delay), nome: r.name, mensagem: r.msg })) : [{ tempo: '', nome: '', mensagem: '' }],
+  const [linhas, setLinhas] = useState<Linha[]>(() =>
+    inicial.length
+      ? inicial.map(r => ({ id: nextId(), tempo: String(r.delay), nome: r.name, mensagem: r.msg }))
+      : [{ id: nextId(), tempo: '', nome: '', mensagem: '' }],
   )
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const set = (i: number, k: keyof Linha, v: string) => setLinhas(ls => ls.map((l, j) => j === i ? { ...l, [k]: v } : l))
-  const add = () => setLinhas(ls => [...ls, { tempo: '', nome: '', mensagem: '' }])
+  const set = (i: number, k: keyof Omit<Linha, 'id'>, v: string) => setLinhas(ls => ls.map((l, j) => j === i ? { ...l, [k]: v } : l))
+  const add = () => setLinhas(ls => [...ls, { id: nextId(), tempo: '', nome: '', mensagem: '' }])
   const rm = (i: number) => setLinhas(ls => ls.filter((_, j) => j !== i))
   const move = (i: number, d: -1 | 1) => setLinhas(ls => {
     const j = i + d; if (j < 0 || j >= ls.length) return ls
@@ -23,7 +30,7 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
     setSalvando(true); setMsg('')
     const r = await fetch('/api/admin/aula/roteiro', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ linhas: linhas.filter(l => l.nome.trim() || l.mensagem.trim() || l.tempo.trim()) }),
+      body: JSON.stringify({ linhas: linhas.filter(l => l.nome.trim() || l.mensagem.trim() || l.tempo.trim()).map(({ tempo, nome, mensagem }) => ({ tempo, nome, mensagem })) }),
     })
     const j = await r.json()
     setSalvando(false)
@@ -36,7 +43,7 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
         <span>Tempo</span><span>Nome</span><span>Mensagem</span><span></span>
       </div>
       {linhas.map((l, i) => (
-        <div key={i} className="grid grid-cols-[80px_140px_1fr_auto] gap-2 items-center">
+        <div key={l.id} className="grid grid-cols-[80px_140px_1fr_auto] gap-2 items-center">
           <input value={l.tempo} onChange={e => set(i, 'tempo', e.target.value)} placeholder="90 / 1:30" className="admin-input rounded-lg px-2 py-2 text-sm" />
           <input value={l.nome} onChange={e => set(i, 'nome', e.target.value)} placeholder="Nome" className="admin-input rounded-lg px-2 py-2 text-sm" />
           <input value={l.mensagem} onChange={e => set(i, 'mensagem', e.target.value)} placeholder="Mensagem" className="admin-input rounded-lg px-2 py-2 text-sm" />

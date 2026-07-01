@@ -4,8 +4,15 @@ import { useState, type ReactNode } from 'react'
 export function Tabs({ tabs, children }: { tabs: { id: string; label: string }[]; children: (active: string) => ReactNode }) {
   const [active, setActive] = useState(tabs[0]?.id)
   const onKey = (e: React.KeyboardEvent, i: number) => {
-    if (e.key === 'ArrowRight') setActive(tabs[(i + 1) % tabs.length].id)
-    if (e.key === 'ArrowLeft') setActive(tabs[(i - 1 + tabs.length) % tabs.length].id)
+    let nextId: string | undefined
+    if (e.key === 'ArrowRight') nextId = tabs[(i + 1) % tabs.length].id
+    if (e.key === 'ArrowLeft') nextId = tabs[(i - 1 + tabs.length) % tabs.length].id
+    if (nextId) {
+      setActive(nextId)
+      requestAnimationFrame(() => {
+        document.getElementById(`tab-${nextId}`)?.focus()
+      })
+    }
   }
   return (
     <div>
@@ -13,7 +20,7 @@ export function Tabs({ tabs, children }: { tabs: { id: string; label: string }[]
         {tabs.map((t, i) => {
           const on = t.id === active
           return (
-            <button key={t.id} role="tab" aria-selected={on} tabIndex={on ? 0 : -1}
+            <button key={t.id} id={`tab-${t.id}`} role="tab" aria-selected={on} aria-controls={`panel-${t.id}`} tabIndex={on ? 0 : -1}
               onKeyDown={(e) => onKey(e, i)} onClick={() => setActive(t.id)}
               className="px-4 py-2.5 text-[13px] font-medium -mb-px border-b-2 transition-colors"
               style={{ borderColor: on ? 'var(--admin-accent)' : 'transparent', color: on ? 'var(--admin-text)' : 'var(--admin-muted)' }}>
@@ -22,7 +29,7 @@ export function Tabs({ tabs, children }: { tabs: { id: string; label: string }[]
           )
         })}
       </div>
-      <div role="tabpanel">{children(active)}</div>
+      <div role="tabpanel" id={`panel-${active}`} aria-labelledby={`tab-${active}`}>{children(active)}</div>
     </div>
   )
 }

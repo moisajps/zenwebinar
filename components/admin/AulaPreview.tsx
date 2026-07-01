@@ -67,7 +67,9 @@ export function AulaPreview({ cfg }: AulaPreviewProps) {
         {/* Chat / offer area */}
         <div style={{ background: '#0F0F0F' }}>
           {oferta?.ativo === true ? (
-            <OfferCard oferta={oferta} aulaDate="preview" />
+            <div style={{ pointerEvents: 'none' }} aria-hidden>
+              <OfferCard oferta={oferta} aulaDate="preview" />
+            </div>
           ) : (
             <p
               className="text-xs text-center py-4"

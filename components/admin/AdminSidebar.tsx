@@ -40,7 +40,7 @@ export function AdminSidebar({ email }: Props) {
         style={{ borderBottom: '1px solid var(--admin-border)' }}
       >
         {!collapsed && (
-          <p className="font-sans font-semibold admin-text text-sm">Webinar Admin</p>
+          <p className="font-sans font-semibold admin-text text-sm">zenwebinar</p>
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}

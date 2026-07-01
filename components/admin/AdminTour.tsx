@@ -8,6 +8,7 @@ const STEPS = [
   { el: '[data-tour="nav-config"]', title: 'Configuração da aula', desc: 'Título, vídeo, horário, oferta e notificações — tudo em abas.' },
   { el: '[data-tour="nav-roteiro"]', title: 'Roteiro do chat', desc: 'Cadastre as mensagens simuladas por tempo, nome e texto.' },
   { el: '[data-tour="nav-dash"]', title: 'Dashboard', desc: 'Acompanhe acessos, pico ao vivo e conversão da oferta.' },
+  { el: '[data-tour="theme-toggle"]', title: 'Tema claro/escuro', desc: 'Alterne entre tema claro e escuro do painel aqui.' },
 ]
 
 function run() {
