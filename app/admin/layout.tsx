@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-ssr'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { AdminHeader } from '@/components/admin/AdminHeader'
 import { ThemeProviderClient } from '@/components/admin/ThemeProviderClient'
 
 export const metadata: Metadata = {
@@ -28,7 +29,8 @@ async function AdminContent({ children }: { children: React.ReactNode }) {
     <>
       <AdminSidebar email={user.email ?? ''} />
       <main className="flex-1 min-w-0 flex flex-col">
-        {children}
+        <AdminHeader email={user.email ?? ''} />
+        <div className="flex-1 min-w-0">{children}</div>
       </main>
     </>
   )
