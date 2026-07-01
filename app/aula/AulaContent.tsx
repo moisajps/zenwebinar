@@ -1,7 +1,7 @@
 // app/aula/AulaContent.tsx
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { computarEstadoAula } from './lib'
 import { type AulaConfig, type EstadoAula } from './config-types'
 import { LiveChatFull, type RoteiroItem } from './LiveElements'
@@ -50,7 +50,7 @@ function loadYTApi(): Promise<void> {
   return ytApiPromise
 }
 
-function YouTubePlayer({ videoId, autoplay = false }: { videoId: string; autoplay?: boolean }) {
+function YouTubePlayer({ videoId, autoplay = false, playerRef: externalPlayerRef }: { videoId: string; autoplay?: boolean; playerRef?: React.MutableRefObject<YTPlayer | null> }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YTPlayer | null>(null)
@@ -87,6 +87,7 @@ function YouTubePlayer({ videoId, autoplay = false }: { videoId: string; autopla
         events: {
           onReady: (e: { target: YTPlayer }) => {
             if (cancelled) return
+            if (externalPlayerRef) externalPlayerRef.current = playerRef.current
             setReady(true)
             if (autoplay) e.target.playVideo()
           },
@@ -103,8 +104,10 @@ function YouTubePlayer({ videoId, autoplay = false }: { videoId: string; autopla
       cancelled = true
       try { playerRef.current?.destroy() } catch { /* ignore */ }
       playerRef.current = null
+      if (externalPlayerRef) externalPlayerRef.current = null
       if (mountEl?.parentNode) mountEl.parentNode.removeChild(mountEl)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- externalPlayerRef é um ref estável (identity não muda)
   }, [videoId, autoplay])
 
   // Sincroniza o estado do botão de tela cheia
@@ -181,10 +184,11 @@ interface Props {
   estadoInicial: EstadoAula
   config: AulaConfig
   roteiro: RoteiroItem[]
+  aulaId: string
   simulando?: boolean
 }
 
-export function AulaContent({ estadoInicial, config, roteiro, simulando = false }: Props) {
+export function AulaContent({ estadoInicial, config, roteiro, aulaId, simulando = false }: Props) {
   const [estado, setEstado] = useState<EstadoAula>(estadoInicial)
   const [agora, setAgora] = useState<Date>(() => new Date())
 
@@ -204,9 +208,9 @@ export function AulaContent({ estadoInicial, config, roteiro, simulando = false 
   }, [estado.fase, simulando])
 
   if (estado.fase === 'aguardando') return <FaseAguardando estado={estado} agora={agora} config={config} />
-  if (estado.fase === 'ao_vivo')    return <FaseAoVivo config={config} startedAt={estado.inicio} roteiro={roteiro} />
+  if (estado.fase === 'ao_vivo')    return <FaseAoVivo config={config} startedAt={estado.inicio} roteiro={roteiro} aulaId={aulaId} />
   if (!config.replayHabilitado)     return <FaseEncerrada estado={estado} agora={agora} />
-  return <FaseReplay config={config} />
+  return <FaseReplay config={config} aulaId={aulaId} />
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -255,7 +259,6 @@ function FaseAguardando({ estado, agora, config }: { estado: Extract<EstadoAula,
 // Fase: ENCERRADA — aula acabou, replay não liberado ainda
 // ─────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FaseEncerrada(_props: { estado: Extract<EstadoAula, { fase: 'replay' }>; agora: Date }) {
   return (
     <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 gap-6">
@@ -280,16 +283,28 @@ function FaseEncerrada(_props: { estado: Extract<EstadoAula, { fase: 'replay' }>
 // Fase: AO VIVO — layout YouTube (fixed full-screen)
 // ─────────────────────────────────────────────────────────────
 
-function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; startedAt: string; roteiro: RoteiroItem[] }) {
+function FaseAoVivo({ config, startedAt, roteiro, aulaId }: { config: AulaConfig; startedAt: string; roteiro: RoteiroItem[]; aulaId: string }) {
   const aulaDate = new Date(startedAt).toLocaleDateString('sv-SE', { timeZone: config.timezone })
   const oferta = config.oferta?.ativo ? config.oferta : undefined
 
-  // Tracking: acesso (1x) + heartbeat (a cada 30s) — base de retenção e simultâneos
+  // Ref para obter posição atual do player YouTube (em segundos)
+  const ytPlayerRef = useRef<YTPlayer | null>(null)
+
+  // Tracking: acesso (1x) + heartbeat (a cada 60s com posição do vídeo)
   useEffect(() => {
-    trackAula(aulaDate, 'acesso')
-    const hb = setInterval(() => trackAula(aulaDate, 'heartbeat'), 60_000)  // 60s reduz inserts na live
+    const getVideoSeg = (): number | undefined => {
+      try {
+        // getCurrentTime não existe na interface mínima YTPlayer — acesso via cast
+        const p = ytPlayerRef.current as (YTPlayer & { getCurrentTime?: () => number }) | null
+        if (p?.getCurrentTime) return Math.floor(p.getCurrentTime())
+      } catch { /* ignore */ }
+      // Fallback: tempo decorrido desde o início da fase ao vivo
+      return Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)
+    }
+    trackAula(aulaId, aulaDate, 'acesso')
+    const hb = setInterval(() => trackAula(aulaId, aulaDate, 'heartbeat', { video_seg: getVideoSeg() }), 60_000)
     return () => clearInterval(hb)
-  }, [aulaDate])
+  }, [aulaId, aulaDate, startedAt])
 
   // Quando o vídeo termina, troca o badge p/ "Encerrado" (mantém tudo ativo)
   const fimSeg = config.aoVivoFimSegundos ?? Infinity
@@ -321,7 +336,7 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
 
         {/* Vídeo — define a altura da row no desktop */}
         <div className="relative w-full bg-black md:flex-1 md:rounded-xl md:overflow-hidden md:self-start" style={{ aspectRatio: '16/9' }}>
-          <YouTubePlayer videoId={config.youtubeVideoId} autoplay />
+          <YouTubePlayer videoId={config.youtubeVideoId} autoplay playerRef={ytPlayerRef} />
           {config.notificacoes?.ativo && oferta && (
             <PurchaseNotifications
               startedAt={startedAt}
@@ -347,7 +362,7 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
             (senão cresce com as mensagens e não rola). */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col md:flex-none md:w-[400px] md:self-stretch md:relative md:rounded-xl md:border md:border-white/10">
           <div className="flex flex-col flex-1 min-h-0 md:absolute md:inset-0">
-            <LiveChatFull startedAt={startedAt} roteiro={roteiro} oferta={oferta} timezone={config.timezone} chatOffsetSegundos={config.chatOffsetSegundos} />
+            <LiveChatFull startedAt={startedAt} roteiro={roteiro} oferta={oferta} timezone={config.timezone} chatOffsetSegundos={config.chatOffsetSegundos} aulaId={aulaId} />
           </div>
         </div>
       </div>
@@ -370,7 +385,7 @@ function FaseAoVivo({ config, startedAt, roteiro }: { config: AulaConfig; starte
 // NÃO unificar sem adicionar key= no callsite.
 // ─────────────────────────────────────────────────────────────
 
-function FaseReplay({ config }: { config: AulaConfig }) {
+function FaseReplay({ config, aulaId }: { config: AulaConfig; aulaId: string }) {
   // Data BRT de hoje — usada só pra tracking (cta_click) da oferta no replay
   const aulaDate = new Date().toLocaleDateString('sv-SE', { timeZone: config.timezone })
   const oferta = config.oferta?.ativo ? config.oferta : undefined
@@ -393,7 +408,7 @@ function FaseReplay({ config }: { config: AulaConfig }) {
       {/* Oferta — mesmo card da aula ao vivo (link/preço/CTA reais + UTM) */}
       {oferta && (
         <div className="pb-10">
-          <OfferCard oferta={oferta} aulaDate={aulaDate} />
+          <OfferCard oferta={oferta} aulaDate={aulaDate} aulaId={aulaId} />
         </div>
       )}
     </div>

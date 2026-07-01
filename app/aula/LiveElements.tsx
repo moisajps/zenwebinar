@@ -30,13 +30,13 @@ function avatarColor(name: string): string {
 }
 
 // ─── Contador de espectadores (busca API real) ────────────────────────────────
-export function ViewerCounterInline({ startedAt, aulaDate }: { startedAt?: string; aulaDate: string }) {
+export function ViewerCounterInline({ startedAt, aulaDate, aulaId }: { startedAt?: string; aulaDate: string; aulaId: string }) {
   const [count, setCount] = useState<number>(0)
   useEffect(() => {
     let alive = true
     const fetchCount = async () => {
       try {
-        const r = await fetch(`/api/aula/ao-vivo?data=${aulaDate}`)
+        const r = await fetch(`/api/aula/ao-vivo?data=${aulaDate}&aula_id=${encodeURIComponent(aulaId)}`)
         const j = await r.json()
         if (alive && typeof j.exibido === 'number') setCount(j.exibido)
       } catch { /* silencioso */ }
@@ -44,7 +44,7 @@ export function ViewerCounterInline({ startedAt, aulaDate }: { startedAt?: strin
     fetchCount()
     const id = setInterval(fetchCount, 8000)
     return () => { alive = false; clearInterval(id) }
-  }, [aulaDate])
+  }, [aulaDate, aulaId])
   return (
     <span className="text-[13px] tabular-nums flex items-center gap-1.5 flex-shrink-0" style={{ color: '#F1F1F1' }}>
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#AAAAAA' }}>
@@ -242,7 +242,7 @@ function ReactionFab() {
 // Chat sincronizado — recebe o instante em que a aula começou e o roteiro por prop.
 // Mensagens do roteiro aparecem por tempo. Mensagens reais
 // são inseridas no Supabase e distribuídas via polling.
-export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetSegundos }: { startedAt: string; roteiro: RoteiroItem[]; oferta?: Oferta; timezone: string; chatOffsetSegundos?: number }) {
+export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetSegundos, aulaId }: { startedAt: string; roteiro: RoteiroItem[]; oferta?: Oferta; timezone: string; chatOffsetSegundos?: number; aulaId: string }) {
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -265,7 +265,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
   // Override de teste: ?pitch=SEGUNDOS na URL.
   useEffect(() => {
     if (!oferta) return
-    const dismissKey = `aula_offer_dismissed:${aulaDate}`
+    const dismissKey = `aula_offer_dismissed:${aulaId}`
     const dismissed = (() => { try { return localStorage.getItem(dismissKey) === '1' } catch { return false } })()
 
     let pitch = oferta.pitchSegundos
@@ -285,11 +285,11 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
     // Ainda não chegou: agenda o drawer
     const t = setTimeout(() => setOfferState('drawer'), (pitch - elapsed) * 1000)
     return () => clearTimeout(t)
-  }, [oferta, startedAt, aulaDate])
+  }, [oferta, startedAt, aulaId, aulaDate])
 
   const fecharOferta = () => {
     setOfferState('card')
-    try { localStorage.setItem(`aula_offer_dismissed:${aulaDate}`, '1') } catch { /* ignore */ }
+    try { localStorage.setItem(`aula_offer_dismissed:${aulaId}`, '1') } catch { /* ignore */ }
   }
 
   // Tracking: registra oferta_view quando o drawer sobe (1x por sessão)
@@ -297,9 +297,9 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
   useEffect(() => {
     if (offerState === 'drawer' && !offerViewedRef.current) {
       offerViewedRef.current = true
-      trackAula(aulaDate, 'oferta_view')
+      trackAula(aulaId, aulaDate, 'oferta_view')
     }
-  }, [offerState, aulaDate])
+  }, [offerState, aulaId, aulaDate])
 
   // Inicialização: busca msgs reais do banco + merge cronológico com o roteiro
   useEffect(() => {
@@ -426,7 +426,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
       await fetch('/api/aula/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: texto, aula_date: aulaDate }),
+        body: JSON.stringify({ message: texto, aula_date: aulaDate, aula_id: aulaId }),
       })
     } finally {
       setEnviando(false)
@@ -458,7 +458,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
           <span className="text-[12px] leading-none" style={{ color: '#AAAAAA' }}>Mensagens principais</span>
         </div>
         {/* Direita: contador centralizado verticalmente */}
-        <ViewerCounterInline startedAt={startedAt} aulaDate={aulaDate} />
+        <ViewerCounterInline startedAt={startedAt} aulaDate={aulaDate} aulaId={aulaId} />
       </div>
 
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }} />
@@ -486,7 +486,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
       <ReactionFab />
 
       {/* Card fixo da oferta (após fechar o drawer) */}
-      {offerState === 'card' && oferta && <OfferCard oferta={oferta} aulaDate={aulaDate} />}
+      {offerState === 'card' && oferta && <OfferCard oferta={oferta} aulaDate={aulaDate} aulaId={aulaId} />}
 
       {/* Input — estilo YouTube */}
       <div className="flex items-center gap-2 px-3 pb-3 flex-shrink-0">
@@ -519,7 +519,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
 
       {/* Drawer da oferta — cobre todo o chat */}
       {offerState === 'drawer' && oferta && (
-        <OfferDrawer oferta={oferta} aulaDate={aulaDate} onClose={fecharOferta} />
+        <OfferDrawer oferta={oferta} aulaDate={aulaDate} aulaId={aulaId} onClose={fecharOferta} />
       )}
     </div>
   )
