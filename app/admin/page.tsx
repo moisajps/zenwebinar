@@ -3,6 +3,10 @@ import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AoVivoAgora } from './AoVivoAgora'
 import { Funnel } from '@/components/admin/Funnel'
+import { PageShell } from '@/components/admin/PageShell'
+import { PageHeader } from '@/components/admin/PageHeader'
+import { Card } from '@/components/admin/Card'
+import { Section } from '@/components/admin/Section'
 import { Users, Eye, MousePointerClick, TrendingUp, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -90,14 +94,14 @@ function Kpi({
   icon?: LucideIcon
 }) {
   return (
-    <div className="admin-card rounded-xl p-4">
+    <Card className="cursor-default">
       <div className="flex items-center gap-1.5 mb-1">
         {Icon && <Icon className="w-3.5 h-3.5 admin-muted shrink-0" />}
         <p className="text-[11px] uppercase tracking-wider admin-muted">{label}</p>
       </div>
       <p className="text-2xl font-bold admin-text tabular-nums">{value}</p>
       {hint && <p className="text-[11px] admin-muted mt-1">{hint}</p>}
-    </div>
+    </Card>
   )
 }
 
@@ -115,35 +119,50 @@ export default async function AdminDashboard({
   const s = getStats(await fetchAll(aulaDate))
 
   return (
-    <div className="admin-text p-8 max-w-5xl" data-tour="dashboard">
-      <h1 className="text-xl font-bold admin-text mb-1">Dashboard</h1>
-      <p className="text-sm admin-muted mb-6">Aula {aulaDate}</p>
+    <PageShell>
+      <div data-tour="dashboard">
+      <PageHeader title="Dashboard" subtitle={`Aula ${aulaDate}`} />
 
-      {/* Hero — Ao vivo agora */}
-      <div className="mb-6">
-        <AoVivoAgora aulaDate={aulaDate} />
-      </div>
+      {/* Wide layout: KPIs left + Funnel right */}
+      <div className="xl:grid xl:grid-cols-[2fr_1fr] xl:gap-6">
+        {/* Left column: hero + KPI groups */}
+        <div>
+          {/* Hero — Ao vivo agora */}
+          <div className="mb-6">
+            <AoVivoAgora aulaDate={aulaDate} />
+          </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-        <Kpi label="Pico simultâneo" value={s.pico.toLocaleString('pt-BR')} hint="máx. ao mesmo tempo" icon={TrendingUp} />
-        <Kpi label="Acessos" value={s.acessos.toLocaleString('pt-BR')} hint="entraram na aula" icon={Users} />
-        <Kpi label="Viram o pitch" value={s.ofertaViews.toLocaleString('pt-BR')} hint="drawer da oferta" icon={Eye} />
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-        <Kpi label="Retenção até pitch" value={pct(s.retencaoPitch)} hint="viram pitch ÷ acessos" icon={TrendingUp} />
-        <Kpi label="Cliques no CTA" value={s.ctaClicks.toLocaleString('pt-BR')} hint={`drawer ${s.ctaDrawer} · card ${s.ctaCard}`} icon={MousePointerClick} />
-        <Kpi label="CTR da oferta" value={pct(s.ctr)} hint="cliques ÷ viram pitch" icon={TrendingUp} />
-      </div>
+          {/* Aquisição KPIs */}
+          <Section title="Aquisição">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
+              <Kpi label="Acessos" value={s.acessos.toLocaleString('pt-BR')} hint="entraram na aula" icon={Users} />
+              <Kpi label="Pico simultâneo" value={s.pico.toLocaleString('pt-BR')} hint="máx. ao mesmo tempo" icon={TrendingUp} />
+              <Kpi label="Viram o pitch" value={s.ofertaViews.toLocaleString('pt-BR')} hint="drawer da oferta" icon={Eye} />
+            </div>
+          </Section>
 
-      {/* Funil SVG */}
-      <Funnel
-        steps={[
-          { label: 'Acessos', value: s.acessos },
-          { label: 'Viram o pitch', value: s.ofertaViews },
-          { label: 'Cliques no CTA', value: s.ctaClicks },
-        ]}
-      />
-    </div>
+          {/* Oferta KPIs */}
+          <Section title="Oferta">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
+              <Kpi label="Retenção até pitch" value={pct(s.retencaoPitch)} hint="viram pitch ÷ acessos" icon={TrendingUp} />
+              <Kpi label="Cliques no CTA" value={s.ctaClicks.toLocaleString('pt-BR')} hint={`drawer ${s.ctaDrawer} · card ${s.ctaCard}`} icon={MousePointerClick} />
+              <Kpi label="CTR da oferta" value={pct(s.ctr)} hint="cliques ÷ viram pitch" icon={TrendingUp} />
+            </div>
+          </Section>
+        </div>
+
+        {/* Right column: Funnel sticky */}
+        <div className="xl:sticky xl:top-6 xl:self-start">
+          <Funnel
+            steps={[
+              { label: 'Acessos', value: s.acessos },
+              { label: 'Viram o pitch', value: s.ofertaViews },
+              { label: 'Cliques no CTA', value: s.ctaClicks },
+            ]}
+          />
+        </div>
+      </div>
+      </div>
+    </PageShell>
   )
 }
