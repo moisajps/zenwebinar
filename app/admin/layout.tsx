@@ -3,6 +3,7 @@ import { createSupabaseServer } from '@/lib/supabase-ssr'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { ThemeProviderClient } from '@/components/admin/ThemeProviderClient'
+import { AdminTour } from '@/components/admin/AdminTour'
 
 export const metadata: Metadata = {
   title: 'Webinar Admin',
@@ -30,6 +31,7 @@ async function AdminContent({ children }: { children: React.ReactNode }) {
       <AdminSidebar email={user.email ?? ''} />
       <main className="flex-1 min-w-0 flex flex-col">
         <AdminHeader email={user.email ?? ''} />
+        <AdminTour />
         <div className="flex-1 min-w-0">{children}</div>
       </main>
     </>
