@@ -1,29 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
-  --admin-bg: #f6f6f7;
-  --admin-panel: #ffffff;
-  --admin-elev: #ffffff;
-  --admin-border: rgba(0,0,0,0.10);
-  --admin-text: #18181b;
-  --admin-muted: #6b7280;
-  --admin-accent: #f59e0b;
-  --admin-accent-contrast: #1a1a1a;
-  --admin-input-bg: #ffffff;
-}
-.dark {
-  --admin-bg: #0A0A0A;
-  --admin-panel: #111111;
-  --admin-elev: #161616;
-  --admin-border: rgba(255,255,255,0.08);
-  --admin-text: #f4f4f5;
-  --admin-muted: rgba(255,255,255,0.55);
-  --admin-accent: #f59e0b;
-  --admin-accent-contrast: #0f0f0f;
-  --admin-input-bg: rgba(255,255,255,0.05);
+  --admin-bg: #F6F6F8;
+  --admin-panel: #FFFFFF;
+  --admin-elev: #FFFFFF;
+  --admin-border: #E7E7EA;
+  --admin-text: #17171C;
+  --admin-muted: #6E7076;
+  --admin-faint: #9B9DA3;
+  --admin-accent: #F59E0B;
+  --admin-accent-contrast: #231603;
+  --admin-input-bg: #FFFFFF;
 }
 
 @utility admin-bg { background: var(--admin-bg); color: var(--admin-text); }
@@ -32,9 +20,10 @@
 @utility admin-border { border-color: var(--admin-border); }
 @utility admin-text { color: var(--admin-text); }
 @utility admin-muted { color: var(--admin-muted); }
+@utility admin-faint { color: var(--admin-faint); }
 @utility admin-input { background: var(--admin-input-bg); border: 1px solid var(--admin-border); color: var(--admin-text); }
 @utility admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); transition: filter 160ms ease, background-color 160ms ease; }
-.admin-accent:hover { filter: brightness(1.06); }
+.admin-accent:hover { filter: brightness(1.04); }
 .admin-input::placeholder { color: var(--admin-muted); opacity: .7; }
 .admin-input:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 1px; }
 
@@ -143,8 +132,8 @@ body {
 /* ── Admin scrollbar ──────────────────────────── */
 .custom-scroll::-webkit-scrollbar       { width: 4px; }
 .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-.custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--admin-border); border-radius: 2px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--admin-muted); }
 
 /* ── driver.js: reduzir movimento ──────────────── */
 @media (prefers-reduced-motion: reduce) { .driver-popover, .driver-overlay { transition: none !important; } }

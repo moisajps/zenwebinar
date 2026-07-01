@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-ssr'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { ThemeProviderClient } from '@/components/admin/ThemeProviderClient'
 import { AdminTour } from '@/components/admin/AdminTour'
 
 export const metadata: Metadata = {
@@ -11,11 +10,9 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProviderClient>
-      <div className="min-h-screen admin-bg flex">
-        <AdminContent>{children}</AdminContent>
-      </div>
-    </ThemeProviderClient>
+    <div className="min-h-screen admin-bg flex">
+      <AdminContent>{children}</AdminContent>
+    </div>
   )
 }
 
