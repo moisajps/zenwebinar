@@ -12,7 +12,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      aria-label={isDark ? 'Ativar tema claro' : 'Ativar tema escuro'}
+      aria-label={!mounted ? 'Alternar tema' : (isDark ? 'Ativar tema claro' : 'Ativar tema escuro')}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="w-9 h-9 rounded-lg flex items-center justify-center admin-muted hover:admin-text transition-colors"
       style={{ border: '1px solid var(--admin-border)' }}

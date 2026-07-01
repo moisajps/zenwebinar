@@ -26,15 +26,15 @@
   --admin-input-bg: rgba(255,255,255,0.05);
 }
 
-.admin-bg { background: var(--admin-bg); color: var(--admin-text); }
-.admin-panel { background: var(--admin-panel); border-color: var(--admin-border); }
-.admin-card { background: var(--admin-elev); border: 1px solid var(--admin-border); }
-.admin-border { border-color: var(--admin-border); }
-.admin-text { color: var(--admin-text); }
-.admin-muted { color: var(--admin-muted); }
-.admin-input { background: var(--admin-input-bg); border: 1px solid var(--admin-border); color: var(--admin-text); }
+@utility admin-bg { background: var(--admin-bg); color: var(--admin-text); }
+@utility admin-panel { background: var(--admin-panel); border-color: var(--admin-border); }
+@utility admin-card { background: var(--admin-elev); border: 1px solid var(--admin-border); }
+@utility admin-border { border-color: var(--admin-border); }
+@utility admin-text { color: var(--admin-text); }
+@utility admin-muted { color: var(--admin-muted); }
+@utility admin-input { background: var(--admin-input-bg); border: 1px solid var(--admin-border); color: var(--admin-text); }
+@utility admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); }
 .admin-input::placeholder { color: var(--admin-muted); opacity: .7; }
-.admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); }
 
 @theme {
   /* Scale A (neutral placeholder — replace with project palette) */
