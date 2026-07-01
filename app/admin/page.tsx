@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AoVivoAgora } from './AoVivoAgora'
+import { Funnel } from '@/components/admin/Funnel'
+import { Users, Eye, MousePointerClick, TrendingUp, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,12 +78,25 @@ function getStats(ev: Evento[]) {
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`
 
-function Kpi({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Kpi({
+  label,
+  value,
+  hint,
+  icon: Icon,
+}: {
+  label: string
+  value: string
+  hint?: string
+  icon?: LucideIcon
+}) {
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
-      <p className="text-[11px] uppercase tracking-wider text-white/40">{label}</p>
-      <p className="text-2xl font-bold text-white mt-1 tabular-nums">{value}</p>
-      {hint && <p className="text-[11px] text-white/30 mt-1">{hint}</p>}
+    <div className="admin-card rounded-xl p-4">
+      <div className="flex items-center gap-1.5 mb-1">
+        {Icon && <Icon className="w-3.5 h-3.5 admin-muted shrink-0" />}
+        <p className="text-[11px] uppercase tracking-wider admin-muted">{label}</p>
+      </div>
+      <p className="text-2xl font-bold admin-text tabular-nums">{value}</p>
+      {hint && <p className="text-[11px] admin-muted mt-1">{hint}</p>}
     </div>
   )
 }
@@ -100,20 +115,35 @@ export default async function AdminDashboard({
   const s = getStats(await fetchAll(aulaDate))
 
   return (
-    <div className="p-8 max-w-5xl">
-      <h1 className="text-xl font-bold text-white mb-1">Dashboard</h1>
-      <p className="text-sm text-white/40 mb-6">Aula {aulaDate}</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div className="admin-text p-8 max-w-5xl" data-tour="dashboard">
+      <h1 className="text-xl font-bold admin-text mb-1">Dashboard</h1>
+      <p className="text-sm admin-muted mb-6">Aula {aulaDate}</p>
+
+      {/* Hero — Ao vivo agora */}
+      <div className="mb-6">
         <AoVivoAgora aulaDate={aulaDate} />
-        <Kpi label="Pico simultâneo" value={s.pico.toLocaleString('pt-BR')} hint="máx. ao mesmo tempo" />
-        <Kpi label="Acessos" value={s.acessos.toLocaleString('pt-BR')} hint="entraram na aula" />
-        <Kpi label="Viram o pitch" value={s.ofertaViews.toLocaleString('pt-BR')} hint="drawer da oferta" />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Kpi label="Retenção até pitch" value={pct(s.retencaoPitch)} hint="viram pitch ÷ acessos" />
-        <Kpi label="Cliques no CTA" value={s.ctaClicks.toLocaleString('pt-BR')} hint={`drawer ${s.ctaDrawer} · card ${s.ctaCard}`} />
-        <Kpi label="CTR da oferta" value={pct(s.ctr)} hint="cliques ÷ viram pitch" />
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+        <Kpi label="Pico simultâneo" value={s.pico.toLocaleString('pt-BR')} hint="máx. ao mesmo tempo" icon={TrendingUp} />
+        <Kpi label="Acessos" value={s.acessos.toLocaleString('pt-BR')} hint="entraram na aula" icon={Users} />
+        <Kpi label="Viram o pitch" value={s.ofertaViews.toLocaleString('pt-BR')} hint="drawer da oferta" icon={Eye} />
       </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+        <Kpi label="Retenção até pitch" value={pct(s.retencaoPitch)} hint="viram pitch ÷ acessos" icon={TrendingUp} />
+        <Kpi label="Cliques no CTA" value={s.ctaClicks.toLocaleString('pt-BR')} hint={`drawer ${s.ctaDrawer} · card ${s.ctaCard}`} icon={MousePointerClick} />
+        <Kpi label="CTR da oferta" value={pct(s.ctr)} hint="cliques ÷ viram pitch" icon={TrendingUp} />
+      </div>
+
+      {/* Funil SVG */}
+      <Funnel
+        steps={[
+          { label: 'Acessos', value: s.acessos },
+          { label: 'Viram o pitch', value: s.ofertaViews },
+          { label: 'Cliques no CTA', value: s.ctaClicks },
+        ]}
+      />
     </div>
   )
 }
