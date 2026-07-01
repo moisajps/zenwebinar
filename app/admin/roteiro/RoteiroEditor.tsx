@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Plus, Trash2, ArrowUp, ArrowDown, Save } from 'lucide-react'
 import { ChatPreview } from '@/components/admin/ChatPreview'
+import { PageHeader } from '@/components/admin/PageHeader'
 
 type Linha = { id: number; tempo: string; nome: string; mensagem: string }
 
@@ -54,8 +55,22 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
     .map(l => ({ name: l.nome, msg: l.mensagem }))
 
   return (
+    <>
+    <PageHeader
+      title="Roteiro do chat"
+      subtitle="Mensagens simuladas por tempo"
+      actions={
+        <div className="flex items-center gap-3">
+          <button onClick={salvar} disabled={salvando} className="admin-accent font-bold rounded-full py-3 px-6 disabled:opacity-50 flex items-center gap-2">
+            <Save size={15} />
+            {salvando ? 'Salvando...' : 'Salvar roteiro'}
+          </button>
+          {msg && <p className="text-sm admin-muted">{msg}</p>}
+        </div>
+      }
+    />
     <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start" data-tour="roteiro-editor">
-      {/* LEFT: Add form + list + save */}
+      {/* LEFT: Add form + list */}
       <div className="flex flex-col gap-6">
         {/* Add form */}
         <div className="rounded-xl border p-4 flex flex-col gap-3" style={{ borderColor: 'var(--admin-border)' }}>
@@ -113,15 +128,6 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
         {linhas.length === 0 && (
           <p className="text-[13px] admin-muted text-center py-4">Nenhuma mensagem ainda. Use o formulário acima para adicionar.</p>
         )}
-
-        {/* Save button */}
-        <div className="flex items-center gap-3">
-          <button onClick={salvar} disabled={salvando} className="admin-accent font-bold rounded-full py-3 px-6 disabled:opacity-50 flex items-center gap-2">
-            <Save size={15} />
-            {salvando ? 'Salvando...' : 'Salvar roteiro'}
-          </button>
-          {msg && <p className="text-sm admin-muted">{msg}</p>}
-        </div>
       </div>
 
       {/* RIGHT: Chat preview */}
@@ -129,5 +135,6 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
         <ChatPreview mensagens={mensagensPreview} />
       </div>
     </div>
+    </>
   )
 }
