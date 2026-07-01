@@ -1,6 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --admin-bg: #f6f6f7;
+  --admin-panel: #ffffff;
+  --admin-elev: #ffffff;
+  --admin-border: rgba(0,0,0,0.10);
+  --admin-text: #18181b;
+  --admin-muted: #6b7280;
+  --admin-accent: #f59e0b;
+  --admin-accent-contrast: #1a1a1a;
+  --admin-input-bg: #ffffff;
+}
+.dark {
+  --admin-bg: #0A0A0A;
+  --admin-panel: #111111;
+  --admin-elev: #161616;
+  --admin-border: rgba(255,255,255,0.08);
+  --admin-text: #f4f4f5;
+  --admin-muted: rgba(255,255,255,0.55);
+  --admin-accent: #f59e0b;
+  --admin-accent-contrast: #0f0f0f;
+  --admin-input-bg: rgba(255,255,255,0.05);
+}
+
+.admin-bg { background: var(--admin-bg); color: var(--admin-text); }
+.admin-panel { background: var(--admin-panel); border-color: var(--admin-border); }
+.admin-card { background: var(--admin-elev); border: 1px solid var(--admin-border); }
+.admin-border { border-color: var(--admin-border); }
+.admin-text { color: var(--admin-text); }
+.admin-muted { color: var(--admin-muted); }
+.admin-input { background: var(--admin-input-bg); border: 1px solid var(--admin-border); color: var(--admin-text); }
+.admin-input::placeholder { color: var(--admin-muted); opacity: .7; }
+.admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); }
+
 @theme {
   /* Scale A (neutral placeholder — replace with project palette) */
   --color-sage-50: #f8fafc;
