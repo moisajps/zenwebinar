@@ -94,7 +94,7 @@ function extrairLink(msg: string, ofertaUrl?: string): { texto: string; url: str
   return { texto: msg.replace(m[0], '').trim(), url: m[0] }
 }
 
-function ChatRow({ name, msg, isHistory, isOfficial, ofertaUrl }: { name: string; msg: string; isHistory: boolean; isOfficial?: boolean; ofertaUrl?: string }) {
+export function ChatRow({ name, msg, isHistory, isOfficial, ofertaUrl }: { name: string; msg: string; isHistory: boolean; isOfficial?: boolean; ofertaUrl?: string }) {
   const [visible, setVisible] = useState(isHistory)
   const color = avatarColor(name)
   // Destaque oficial vem de uma flag do servidor (não do nome) — evita impersonação
