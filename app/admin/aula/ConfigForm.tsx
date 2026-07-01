@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { AulaConfig, Oferta, NotificacoesCompra, Branding } from '@/app/aula/config-types'
 import { Tabs } from '@/components/admin/Tabs'
 import { InfoTip } from '@/components/admin/Tooltip'
+import { AulaPreview } from '@/components/admin/AulaPreview'
 
 // ---------------------------------------------------------------------------
 // Helpers para converter inicioAt entre ISO UTC e datetime-local (YYYY-MM-DDTHH:MM)
@@ -127,7 +128,8 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
   const branding = cfg.branding ?? defaultBranding
 
   return (
-    <div className="flex flex-col gap-6 admin-text">
+    <div className="flex flex-col gap-6 admin-text lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8">
+      <div className="flex flex-col gap-6">
 
       {/* ------------------------------------------------------------------ */}
       {/* Tabs */}
@@ -479,6 +481,12 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
           {msg}
         </p>
       )}
+      </div>
+
+      {/* right: sticky preview */}
+      <div data-tour="config-preview" className="lg:sticky lg:top-6">
+        <AulaPreview cfg={cfg} />
+      </div>
     </div>
   )
 }
