@@ -51,7 +51,7 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
   }
 
   const mensagensPreview = linhas
-    .filter(l => l.nome.trim() || l.mensagem.trim())
+    .filter(l => l.nome.trim() && l.mensagem.trim())
     .map(l => ({ name: l.nome, msg: l.mensagem }))
 
   return (

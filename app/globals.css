@@ -33,9 +33,10 @@
 @utility admin-text { color: var(--admin-text); }
 @utility admin-muted { color: var(--admin-muted); }
 @utility admin-input { background: var(--admin-input-bg); border: 1px solid var(--admin-border); color: var(--admin-text); }
-@utility admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); }
+@utility admin-accent { background: var(--admin-accent); color: var(--admin-accent-contrast); transition: filter 160ms ease, background-color 160ms ease; }
 .admin-accent:hover { filter: brightness(1.06); }
 .admin-input::placeholder { color: var(--admin-muted); opacity: .7; }
+.admin-input:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 1px; }
 
 @theme {
   /* Scale A (neutral placeholder — replace with project palette) */
