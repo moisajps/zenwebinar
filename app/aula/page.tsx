@@ -23,7 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AulaPage({ searchParams }: { searchParams: Promise<{ simular?: string }> }) {
   const params = await searchParams
-  const [config, roteiro] = await Promise.all([getActiveConfig(), getRoteiro()])
+  const config = await getActiveConfig()
+  const roteiro = await getRoteiro(config.id)
 
   const agora = new Date()
   const fimSimulado = new Date(agora.getTime() + config.duracaoMin * 60 * 1000)

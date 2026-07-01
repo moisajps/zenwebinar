@@ -33,6 +33,9 @@ export type MateriaisGrupo = { categoria: string; itens: readonly string[]; nota
 export type Materiais = { titulo: string; subtitulo: string; grupos: readonly MateriaisGrupo[] }
 
 export type AulaConfig = {
+  id: string
+  slug: string
+  nome: string
   titulo: string
   seoDescricao: string
   youtubeVideoId: string

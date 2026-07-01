@@ -3,6 +3,9 @@
 import type { AulaConfig } from '@/app/aula/config-types'
 
 export const SEED_CONFIG: AulaConfig = {
+  id: '00000000-0000-0000-0000-000000000000',
+  slug: 'webinar',
+  nome: 'Webinar ao vivo',
   titulo: 'Aula ao vivo',
   seoDescricao: 'Participe da nossa aula ao vivo.',
   youtubeVideoId: '',                 // admin define
