@@ -1,168 +1,70 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/require-admin'
+import { listAulas } from '@/lib/aula-config'
 import { supabaseAdmin } from '@/lib/supabase'
-import { AoVivoAgora } from './AoVivoAgora'
-import { Funnel } from '@/components/admin/Funnel'
+import { statusDaAula } from '@/lib/aula-status'
 import { PageShell } from '@/components/admin/PageShell'
 import { PageHeader } from '@/components/admin/PageHeader'
-import { Card } from '@/components/admin/Card'
-import { Section } from '@/components/admin/Section'
-import { Users, Eye, MousePointerClick, TrendingUp, type LucideIcon } from 'lucide-react'
+import { AulasList, NovaAulaButton, type AulaComResumo } from './AulasList'
 
 export const dynamic = 'force-dynamic'
 
-type Evento = {
-  session_id: string
-  event_type: string
-  created_at: string
-  metadata: Record<string, unknown> | null
-}
-
-async function fetchAll(aulaDate: string): Promise<Evento[]> {
-  const PAGE = 1000
-  const all: Evento[] = []
-  let off = 0
-  while (true) {
-    const { data } = await supabaseAdmin
-      .from('aula_eventos')
-      .select('session_id, event_type, created_at, metadata')
-      .eq('aula_date', aulaDate)
-      .range(off, off + PAGE - 1)
-    if (!data?.length) break
-    all.push(...(data as Evento[]))
-    if (data.length < PAGE) break
-    off += PAGE
-  }
-  return all
-}
-
-async function getDatas(): Promise<string[]> {
+/** Busca resumo (acessos + cliques) de todas as aulas em uma única query. */
+async function getResumos(): Promise<Map<string, { acessos: number; cliques: number }>> {
   const { data } = await supabaseAdmin
     .from('aula_eventos')
-    .select('aula_date')
-    .order('aula_date', { ascending: false })
-    .limit(1000)
-  return Array.from(new Set((data ?? []).map(r => r.aula_date as string)))
-}
+    .select('aula_id, session_id, event_type')
 
-function getStats(ev: Evento[]) {
-  const sess = (t: string) => new Set(ev.filter(e => e.event_type === t).map(e => e.session_id))
-  const acessos = sess('acesso').size
-  const ofertaViews = sess('oferta_view').size
-  const ctaClicks = sess('cta_click').size
-  const ctaDrawer = new Set(
-    ev
-      .filter(e => e.event_type === 'cta_click' && e.metadata?.origem === 'drawer')
-      .map(e => e.session_id),
-  ).size
-  const ctaCard = new Set(
-    ev
-      .filter(e => e.event_type === 'cta_click' && e.metadata?.origem === 'card')
-      .map(e => e.session_id),
-  ).size
-  const buckets = new Map<number, Set<string>>()
-  for (const e of ev) {
-    if (e.event_type !== 'heartbeat' && e.event_type !== 'acesso') continue
-    const b = Math.floor(new Date(e.created_at).getTime() / 30_000)
-    if (!buckets.has(b)) buckets.set(b, new Set())
-    buckets.get(b)!.add(e.session_id)
+  const map = new Map<string, { sessions: Set<string>; cliques: number }>()
+
+  for (const row of data ?? []) {
+    const id = row.aula_id as string
+    if (!id) continue
+    if (!map.has(id)) map.set(id, { sessions: new Set(), cliques: 0 })
+    const entry = map.get(id)!
+    if (row.event_type === 'acesso') {
+      entry.sessions.add(row.session_id as string)
+    } else if (row.event_type === 'cta_click') {
+      entry.cliques++
+    }
   }
-  const pico = buckets.size ? Math.max(...[...buckets.values()].map(s => s.size)) : 0
-  return {
-    acessos,
-    ofertaViews,
-    ctaClicks,
-    ctaDrawer,
-    ctaCard,
-    pico,
-    retencaoPitch: acessos ? ofertaViews / acessos : 0,
-    ctr: ofertaViews ? ctaClicks / ofertaViews : 0,
+
+  const result = new Map<string, { acessos: number; cliques: number }>()
+  for (const [id, entry] of map.entries()) {
+    result.set(id, { acessos: entry.sessions.size, cliques: entry.cliques })
   }
+  return result
 }
 
-const pct = (n: number) => `${(n * 100).toFixed(1)}%`
-
-function Kpi({
-  label,
-  value,
-  hint,
-  icon: Icon,
-}: {
-  label: string
-  value: string
-  hint?: string
-  icon?: LucideIcon
-}) {
-  return (
-    <Card className="cursor-default">
-      <div className="flex items-center gap-1.5 mb-1">
-        {Icon && <Icon className="w-3.5 h-3.5 admin-muted shrink-0" />}
-        <p className="text-[11px] uppercase tracking-wider admin-muted">{label}</p>
-      </div>
-      <p className="text-2xl font-bold admin-text tabular-nums">{value}</p>
-      {hint && <p className="text-[11px] admin-muted mt-1">{hint}</p>}
-    </Card>
-  )
-}
-
-export default async function AdminDashboard({
-  searchParams,
-}: {
-  searchParams: Promise<{ data?: string }>
-}) {
+export default async function AdminPage() {
   const result = await requireAdmin()
   if (!result.ok) redirect('/admin/login')
 
-  const params = await searchParams
-  const datas = await getDatas()
-  const aulaDate = params.data || datas[0] || new Date().toISOString().split('T')[0]
-  const s = getStats(await fetchAll(aulaDate))
+  const [aulas, resumos] = await Promise.all([listAulas(), getResumos()])
+
+  const agora = new Date()
+  const aulasComResumo: AulaComResumo[] = aulas.map((a) => {
+    const r = resumos.get(a.id) ?? { acessos: 0, cliques: 0 }
+    return {
+      id: a.id,
+      slug: a.slug,
+      nome: a.nome,
+      inicioAt: a.inicioAt,
+      timezone: a.timezone,
+      status: statusDaAula(a, agora),
+      acessos: r.acessos,
+      cliques: r.cliques,
+    }
+  })
 
   return (
     <PageShell>
-      <div data-tour="dashboard">
-      <PageHeader title="Dashboard" subtitle={`Aula ${aulaDate}`} />
-
-      {/* Wide layout: KPIs left + Funnel right */}
-      <div className="xl:grid xl:grid-cols-[2fr_1fr] xl:gap-6">
-        {/* Left column: hero + KPI groups */}
-        <div>
-          {/* Hero — Ao vivo agora */}
-          <div className="mb-6">
-            <AoVivoAgora aulaDate={aulaDate} />
-          </div>
-
-          {/* Aquisição KPIs */}
-          <Section title="Aquisição">
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
-              <Kpi label="Acessos" value={s.acessos.toLocaleString('pt-BR')} hint="entraram na aula" icon={Users} />
-              <Kpi label="Pico simultâneo" value={s.pico.toLocaleString('pt-BR')} hint="máx. ao mesmo tempo" icon={TrendingUp} />
-              <Kpi label="Viram o pitch" value={s.ofertaViews.toLocaleString('pt-BR')} hint="drawer da oferta" icon={Eye} />
-            </div>
-          </Section>
-
-          {/* Oferta KPIs */}
-          <Section title="Oferta">
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
-              <Kpi label="Retenção até pitch" value={pct(s.retencaoPitch)} hint="viram pitch ÷ acessos" icon={TrendingUp} />
-              <Kpi label="Cliques no CTA" value={s.ctaClicks.toLocaleString('pt-BR')} hint={`drawer ${s.ctaDrawer} · card ${s.ctaCard}`} icon={MousePointerClick} />
-              <Kpi label="CTR da oferta" value={pct(s.ctr)} hint="cliques ÷ viram pitch" icon={TrendingUp} />
-            </div>
-          </Section>
-        </div>
-
-        {/* Right column: Funnel sticky */}
-        <div className="xl:sticky xl:top-6 xl:self-start">
-          <Funnel
-            steps={[
-              { label: 'Acessos', value: s.acessos },
-              { label: 'Viram o pitch', value: s.ofertaViews },
-              { label: 'Cliques no CTA', value: s.ctaClicks },
-            ]}
-          />
-        </div>
-      </div>
-      </div>
+      <PageHeader
+        title="Aulas"
+        subtitle="Seus webinars"
+        actions={<NovaAulaButton />}
+      />
+      <AulasList aulas={aulasComResumo} />
     </PageShell>
   )
 }
