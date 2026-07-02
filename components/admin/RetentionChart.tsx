@@ -54,7 +54,8 @@ export function RetentionChart({ pontos, pico, pitchMinuto }: Props) {
             y={100}
             r={4}
             fill="var(--admin-accent)"
-            stroke="white"
+            stroke="var(--admin-accent-contrast)"
+            strokeWidth={1.5}
             label={{ value: 'pico', position: 'top', fontSize: 10, fill: 'var(--admin-text)' }}
           />
         </AreaChart>
