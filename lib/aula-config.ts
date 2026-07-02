@@ -73,10 +73,3 @@ export async function getRoteiro(aulaId: string): Promise<{ delay: number; name:
   if (!data || data.length === 0) return SEED_ROTEIRO
   return data.map(r => ({ delay: r.delay_segundos as number, name: r.nome as string, msg: r.mensagem as string }))
 }
-
-// Shim — mantém compatibilidade com telas ainda não migradas para slug/id.
-// getAulaAtivaMaisRecente pode retornar null; aqui devolvemos SEED_CONFIG como fallback
-// para que os callers que esperam AulaConfig não-null continuem compilando.
-export async function getActiveConfig(): Promise<AulaConfig> {
-  return (await getAulaAtivaMaisRecente()) ?? (SEED_CONFIG as AulaConfig)
-}
