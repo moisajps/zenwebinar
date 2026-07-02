@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { parseRoteiro, normalizarLinhas } from '@/lib/roteiro-parse'
-import { getAulaAtivaMaisRecente } from '@/lib/aula-config'
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
@@ -10,12 +9,11 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
 
-  // aulaId fallback: se não vier no body, usa a aula mais recente (compatibilidade com telas ainda não migradas)
-  let aulaId: string = String(body.aulaId ?? '').trim()
+  // aulaId é obrigatório — a tela de roteiro (DELETE-then-INSERT) sempre envia o id
+  // da aula-alvo; sem ele, um fallback poderia apagar o roteiro da aula errada.
+  const aulaId: string = String(body.aulaId ?? '').trim()
   if (!aulaId) {
-    const recente = await getAulaAtivaMaisRecente()
-    if (!recente) return NextResponse.json({ ok: false, erro: 'Nenhuma aula encontrada' }, { status: 404 })
-    aulaId = recente.id
+    return NextResponse.json({ ok: false, erro: 'aulaId obrigatório' }, { status: 400 })
   }
 
   let linhas

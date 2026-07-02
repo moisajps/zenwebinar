@@ -330,6 +330,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
     supabaseAnon
       .from('aula_chat')
       .select('id, user_name, message, created_at, is_official')
+      .eq('aula_id', aulaId)
       .eq('aula_date', aulaDate)
       .eq('hidden', false)
       .gte('created_at', new Date(start).toISOString())
@@ -367,7 +368,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
         }, (dly(delay) - elapsed) * 1000),
       )
     return () => timers.forEach(clearTimeout)
-  }, [startedAt, aulaDate, chatOffsetSegundos, roteiro])
+  }, [startedAt, aulaDate, aulaId, chatOffsetSegundos, roteiro])
 
   // Polling a cada 3s: só mensagens NOVAS (após o último fetch)
   const lastCreatedAtRef = useRef<string>(new Date(startedAt).toISOString())
@@ -376,6 +377,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
       const { data } = await supabaseAnon
         .from('aula_chat')
         .select('id, user_name, message, created_at, is_official')
+        .eq('aula_id', aulaId)
         .eq('aula_date', aulaDate)
         .eq('hidden', false)
         .gt('created_at', lastCreatedAtRef.current)
@@ -394,7 +396,7 @@ export function LiveChatFull({ startedAt, roteiro, oferta, timezone, chatOffsetS
 
     const interval = setInterval(poll, 5000)  // 5s reduz carga no banco (live com muitos usuários)
     return () => clearInterval(interval)
-  }, [aulaDate, startedAt])
+  }, [aulaDate, aulaId, startedAt])
 
   // Scroll inicial após histórico
   useEffect(() => {

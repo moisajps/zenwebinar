@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getAulaAtivaMaisRecente } from '@/lib/aula-config'
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
@@ -9,12 +8,10 @@ export async function POST(req: NextRequest) {
 
   const b = await req.json()
 
-  // aulaId fallback: se não vier no body, usa a aula mais recente (compatibilidade com telas ainda não migradas)
-  let aulaId: string = String(b.aulaId ?? '').trim()
+  // aulaId é obrigatório — toda tela admin envia o id da aula-alvo.
+  const aulaId: string = String(b.aulaId ?? '').trim()
   if (!aulaId) {
-    const recente = await getAulaAtivaMaisRecente()
-    if (!recente) return NextResponse.json({ ok: false, erro: 'Nenhuma aula encontrada' }, { status: 404 })
-    aulaId = recente.id
+    return NextResponse.json({ ok: false, erro: 'aulaId obrigatório' }, { status: 400 })
   }
 
   // Monta apenas os campos presentes no body. slug/nome não são tocados aqui.

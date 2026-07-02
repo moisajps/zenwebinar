@@ -10,9 +10,15 @@ UPDATE aula_config SET nome = COALESCE(nome, titulo);
 UPDATE aula_config
   SET slug = COALESCE(slug, NULLIF(regexp_replace(lower(titulo), '[^a-z0-9]+', '-', 'g'), ''), 'webinar')
   WHERE slug IS NULL;
--- desempate de slug se colidirem
-UPDATE aula_config a SET slug = a.slug || '-' || left(a.id::text, 4)
-  WHERE EXISTS (SELECT 1 FROM aula_config b WHERE b.slug = a.slug AND b.id <> a.id);
+-- desempate de slug se colidirem: sufixo incremental determinístico (-2, -3, ...)
+-- por grupo de slug. Instalações legadas (aula única) têm 1 linha, então não dispara.
+WITH ranked AS (
+  SELECT id, row_number() OVER (PARTITION BY slug ORDER BY updated_at NULLS FIRST, id) AS rn
+  FROM aula_config
+)
+UPDATE aula_config a SET slug = a.slug || '-' || r.rn
+  FROM ranked r
+  WHERE a.id = r.id AND r.rn > 1;
 
 ALTER TABLE aula_config ALTER COLUMN nome SET NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS aula_config_slug_idx ON aula_config (slug);
