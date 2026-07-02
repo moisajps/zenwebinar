@@ -3,9 +3,9 @@ import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AoVivoAgora } from '@/app/admin/AoVivoAgora'
 import { Funnel } from '@/components/admin/Funnel'
-import { Card } from '@/components/admin/Card'
 import { Section } from '@/components/admin/Section'
-import { Users, Eye, MousePointerClick, TrendingUp, type LucideIcon } from 'lucide-react'
+import { Kpi } from '@/components/admin/Kpi'
+import { Users, Eye, MousePointerClick, TrendingUp } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -70,29 +70,6 @@ function getStats(ev: Evento[]) {
 }
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`
-
-function Kpi({
-  label,
-  value,
-  hint,
-  icon: Icon,
-}: {
-  label: string
-  value: string
-  hint?: string
-  icon?: LucideIcon
-}) {
-  return (
-    <Card className="cursor-default">
-      <div className="flex items-center gap-1.5 mb-1">
-        {Icon && <Icon className="w-3.5 h-3.5 admin-muted shrink-0" />}
-        <p className="text-[11px] uppercase tracking-wider admin-muted">{label}</p>
-      </div>
-      <p className="text-2xl font-bold admin-text tabular-nums">{value}</p>
-      {hint && <p className="text-[11px] admin-muted mt-1">{hint}</p>}
-    </Card>
-  )
-}
 
 export default async function VisaoGeral({
   params,
