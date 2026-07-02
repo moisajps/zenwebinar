@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { ChatPreview } from '@/components/admin/ChatPreview'
 
-export function MensagemForm({ teamName }: { teamName: string }) {
+export function MensagemForm({ teamName, aulaId }: { teamName: string; aulaId?: string }) {
   const [message, setMessage] = useState('')
   const [msg, setMsg] = useState('')
 
@@ -10,7 +10,7 @@ export function MensagemForm({ teamName }: { teamName: string }) {
     const r = await fetch('/api/admin/aula/mensagem', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, aulaId }),
     })
     setMsg(r.ok ? 'Enviada!' : 'Erro ao enviar')
     if (r.ok) setMessage('')
@@ -24,17 +24,17 @@ export function MensagemForm({ teamName }: { teamName: string }) {
           onChange={e => setMessage(e.target.value)}
           rows={3}
           maxLength={300}
-          className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white"
+          className="admin-input rounded-lg px-3 py-2"
           placeholder="Mensagem que aparece destacada no chat ao vivo"
         />
         <button
           onClick={enviar}
           disabled={!message.trim()}
-          className="bg-amber-500 text-black font-bold rounded-full py-3 disabled:opacity-50"
+          className="admin-accent font-bold rounded-full py-3 disabled:opacity-50 transition-colors cursor-pointer"
         >
           Enviar como equipe
         </button>
-        {msg && <p className="text-sm text-white/70">{msg}</p>}
+        {msg && <p className="text-sm admin-muted">{msg}</p>}
       </div>
 
       <div className="mt-6 lg:mt-0 lg:sticky lg:top-6">
