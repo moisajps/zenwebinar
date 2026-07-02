@@ -12,12 +12,10 @@ const JANELA_MS = 45_000
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function GET(req: NextRequest) {
-  const data = req.nextUrl.searchParams.get('data')
+  // A contagem ao vivo é por aula (aula_id). O antigo `data` continua aceito por
+  // compatibilidade com a página pública, mas não é mais exigido nem usado na query.
   const aulaId = req.nextUrl.searchParams.get('aula_id')
 
-  if (!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-    return NextResponse.json({ real: 0, exibido: 0 }, { status: 400 })
-  }
   if (!aulaId || !UUID_RE.test(aulaId)) {
     return NextResponse.json({ real: 0, exibido: 0 }, { status: 400 })
   }

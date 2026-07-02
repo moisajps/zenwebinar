@@ -2,6 +2,7 @@ import { computarEstadoAula } from '@/app/aula/lib'
 import type { AulaConfig } from '@/app/aula/config-types'
 
 const base: AulaConfig = {
+  id: '00000000-0000-0000-0000-000000000000', slug: 't', nome: 't',
   titulo: 't', seoDescricao: 'd', youtubeVideoId: 'v',
   inicioAt: '2026-07-01T23:00:00.000Z', // 20:00 BRT (UTC-3)
   duracaoMin: 100, recorrencia: null, timezone: 'America/Sao_Paulo',
