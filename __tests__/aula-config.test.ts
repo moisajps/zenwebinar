@@ -8,6 +8,9 @@ describe('rowToConfig', () => {
 
   it('mapeia snake_case e jsonb para o AulaConfig', () => {
     const cfg = rowToConfig({
+      id: 'aaa-bbb-ccc',
+      slug: 'minha-aula',
+      nome: 'Minha Aula',
       titulo: 'Minha Aula',
       youtube_video_id: 'abc123',
       inicio_at: '2026-07-01T23:00:00.000Z',
@@ -19,6 +22,9 @@ describe('rowToConfig', () => {
       oferta: { ativo: true, link: 'https://x.com', cta: 'Comprar' },
       branding: { marca: 'X', areaLabel: 'Alunos', teamName: 'Time X', ogImage: '/o.jpg' },
     })
+    expect(cfg.id).toBe('aaa-bbb-ccc')
+    expect(cfg.slug).toBe('minha-aula')
+    expect(cfg.nome).toBe('Minha Aula')
     expect(cfg.titulo).toBe('Minha Aula')
     expect(cfg.youtubeVideoId).toBe('abc123')
     expect(cfg.inicioAt).toBe('2026-07-01T23:00:00.000Z')

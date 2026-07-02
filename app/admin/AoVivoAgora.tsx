@@ -2,14 +2,14 @@
 import { useEffect, useState } from 'react'
 import { Radio } from 'lucide-react'
 
-export function AoVivoAgora({ aulaDate }: { aulaDate: string }) {
+export function AoVivoAgora({ aulaId }: { aulaId: string }) {
   const [n, setN] = useState<{ real: number; exibido: number }>({ real: 0, exibido: 0 })
 
   useEffect(() => {
     let alive = true
     const f = async () => {
       try {
-        const r = await fetch(`/api/aula/ao-vivo?data=${aulaDate}`)
+        const r = await fetch(`/api/aula/ao-vivo?aula_id=${encodeURIComponent(aulaId)}`)
         const j = await r.json()
         if (alive) setN(j)
       } catch {
@@ -22,7 +22,7 @@ export function AoVivoAgora({ aulaDate }: { aulaDate: string }) {
       alive = false
       clearInterval(id)
     }
-  }, [aulaDate])
+  }, [aulaId])
 
   return (
     <div className="admin-card rounded-xl p-6 flex items-center gap-5">

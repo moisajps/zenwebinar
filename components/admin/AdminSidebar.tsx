@@ -4,14 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { createSupabaseBrowser } from '@/lib/supabase-browser'
-import { LayoutDashboard, Settings, MessageSquare, Megaphone, ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
-
-const NAV = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, tourKey: 'nav-dash' },
-  { href: '/admin/aula', label: 'Configuração da aula', icon: Settings, tourKey: 'nav-config' },
-  { href: '/admin/roteiro', label: 'Roteiro do chat', icon: MessageSquare, tourKey: 'nav-roteiro' },
-  { href: '/admin/mensagem', label: 'Mensagem oficial', icon: Megaphone, tourKey: undefined },
-]
+import { Video, ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 
 interface Props { email: string }
 
@@ -24,6 +17,8 @@ export function AdminSidebar({ email }: Props) {
     await supabase.auth.signOut()
     window.location.href = '/admin/login'
   }
+
+  const aulasActive = pathname === '/admin' || pathname.startsWith('/admin/aulas')
 
   return (
     <aside
@@ -44,7 +39,7 @@ export function AdminSidebar({ email }: Props) {
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className="flex items-center justify-center w-7 h-7 rounded-lg admin-muted hover:admin-text hover:admin-panel transition-colors shrink-0"
+          className="flex items-center justify-center w-7 h-7 rounded-lg admin-muted hover:admin-text hover:admin-panel transition-colors shrink-0 cursor-pointer"
           title={collapsed ? 'Expandir' : 'Recolher'}
         >
           {collapsed
@@ -55,31 +50,25 @@ export function AdminSidebar({ email }: Props) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 overflow-y-auto flex flex-col gap-0.5">
-        {NAV.map(({ href, label, icon: Icon, tourKey }) => {
-          const active = isActive(pathname, href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              prefetch
-              title={collapsed ? label : undefined}
-              {...(tourKey ? { 'data-tour': tourKey } : {})}
-              className={[
-                'flex items-center rounded-lg transition-colors duration-150',
-                collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
-                active
-                  ? 'admin-text font-medium'
-                  : 'admin-muted hover:admin-text',
-              ].join(' ')}
-              style={active ? { background: 'var(--admin-border)' } : undefined}
-            >
-              <Icon size={16} />
-              {!collapsed && (
-                <span className="font-sans text-sm">{label}</span>
-              )}
-            </Link>
-          )
-        })}
+        <Link
+          href="/admin"
+          prefetch
+          title={collapsed ? 'Aulas' : undefined}
+          data-tour="nav-aulas"
+          className={[
+            'flex items-center rounded-lg transition-colors duration-150',
+            collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+            aulasActive
+              ? 'admin-text font-medium'
+              : 'admin-muted hover:admin-text',
+          ].join(' ')}
+          style={aulasActive ? { background: 'var(--admin-border)' } : undefined}
+        >
+          <Video size={16} />
+          {!collapsed && (
+            <span className="font-sans text-sm">Aulas</span>
+          )}
+        </Link>
       </nav>
 
       {/* User + logout */}
@@ -104,10 +93,4 @@ export function AdminSidebar({ email }: Props) {
       </div>
     </aside>
   )
-}
-
-// Match exato para /admin, prefix para sub-rotas
-function isActive(pathname: string, href: string): boolean {
-  if (href === '/admin') return pathname === '/admin'
-  return pathname === href || pathname.startsWith(href + '/')
 }

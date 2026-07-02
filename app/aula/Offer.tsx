@@ -5,10 +5,10 @@ import { trackAula, linkComUtm } from './track'
 
 // ─── Drawer da oferta (estilo anúncio do YouTube — IMG_0920) ──────────────────
 // Sobe cobrindo o chat. O X fecha e deixa o card fixo no rodapé.
-export function OfferDrawer({ oferta, aulaDate, onClose }: { oferta: Oferta; aulaDate: string; onClose: () => void }) {
+export function OfferDrawer({ oferta, aulaDate, aulaId, onClose }: { oferta: Oferta; aulaDate: string; aulaId: string; onClose: () => void }) {
   const irParaLink = () => {
-    trackAula(aulaDate, 'cta_click', { origem: 'drawer' })
-    window.open(linkComUtm(oferta.link, aulaDate, 'drawer'), '_blank')
+    trackAula(aulaId, aulaDate, 'cta_click', { origem: 'drawer' })
+    window.open(linkComUtm(oferta.link, aulaId, aulaDate, 'drawer'), '_blank')
   }
 
   return (
@@ -83,10 +83,10 @@ export function OfferDrawer({ oferta, aulaDate, onClose }: { oferta: Oferta; aul
 }
 
 // ─── Card fixo no rodapé do chat (estilo enquete fixada) ──────────────────────
-export function OfferCard({ oferta, aulaDate }: { oferta: Oferta; aulaDate: string }) {
+export function OfferCard({ oferta, aulaDate, aulaId }: { oferta: Oferta; aulaDate: string; aulaId: string }) {
   const irParaLink = () => {
-    trackAula(aulaDate, 'cta_click', { origem: 'card' })
-    window.open(linkComUtm(oferta.link, aulaDate, 'card'), '_blank')
+    trackAula(aulaId, aulaDate, 'cta_click', { origem: 'card' })
+    window.open(linkComUtm(oferta.link, aulaId, aulaDate, 'card'), '_blank')
   }
 
   return (

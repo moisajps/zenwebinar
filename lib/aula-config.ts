@@ -10,6 +10,9 @@ export function rowToConfig(row: Row | null): AulaConfig {
   if (!row) return SEED_CONFIG
   const s = SEED_CONFIG
   return {
+    id:     pick(row.id as string | null, s.id),
+    slug:   pick(row.slug as string | null, s.slug),
+    nome:   pick(row.nome as string | null, s.nome),
     titulo: pick(row.titulo, s.titulo),
     seoDescricao: pick(row.seo_descricao, s.seoDescricao),
     youtubeVideoId: pick(row.youtube_video_id, s.youtubeVideoId),
@@ -30,15 +33,41 @@ export function rowToConfig(row: Row | null): AulaConfig {
   }
 }
 
-export async function getActiveConfig(): Promise<AulaConfig> {
-  const { data } = await supabaseAdmin.from('aula_config').select('*').eq('ativa', true).maybeSingle()
-  return rowToConfig(data ?? null)
+export async function getConfigBySlug(slug: string): Promise<AulaConfig | null> {
+  const { data } = await supabaseAdmin.from('aula_config').select('*').eq('slug', slug).eq('arquivada', false).maybeSingle()
+  return data ? rowToConfig(data) : null
 }
 
-export async function getRoteiro(): Promise<{ delay: number; name: string; msg: string }[]> {
+export async function getConfigById(id: string): Promise<AulaConfig | null> {
+  const { data } = await supabaseAdmin.from('aula_config').select('*').eq('id', id).maybeSingle()
+  return data ? rowToConfig(data) : null
+}
+
+export async function getAulaAtivaMaisRecente(): Promise<AulaConfig | null> {
+  const { data } = await supabaseAdmin.from('aula_config').select('*').eq('arquivada', false).order('inicio_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle()
+  return data ? rowToConfig(data) : null
+}
+
+export async function listAulas(): Promise<{ id: string; slug: string; nome: string; titulo: string; inicioAt: string | null; recorrencia: AulaConfig['recorrencia']; duracaoMin: number; timezone: string; replayHabilitado: boolean }[]> {
+  const { data } = await supabaseAdmin.from('aula_config').select('id,slug,nome,titulo,inicio_at,recorrencia,duracao_min,timezone,replay_habilitado').eq('arquivada', false).order('inicio_at', { ascending: false, nullsFirst: false })
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    nome: r.nome,
+    titulo: r.titulo,
+    inicioAt: r.inicio_at,
+    recorrencia: r.recorrencia,
+    duracaoMin: r.duracao_min,
+    timezone: r.timezone,
+    replayHabilitado: r.replay_habilitado,
+  }))
+}
+
+export async function getRoteiro(aulaId: string): Promise<{ delay: number; name: string; msg: string }[]> {
   const { data } = await supabaseAdmin
     .from('aula_roteiro')
     .select('delay_segundos, nome, mensagem, ordem')
+    .eq('aula_id', aulaId)
     .order('delay_segundos', { ascending: true })
     .order('ordem', { ascending: true })
   if (!data || data.length === 0) return SEED_ROTEIRO

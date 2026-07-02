@@ -11,7 +11,7 @@ type Linha = { id: number; tempo: string; nome: string; mensagem: string }
 let _idCounter = 0
 const nextId = () => ++_idCounter
 
-export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: string; msg: string }[] }) {
+export function RoteiroEditor({ inicial, aulaId }: { inicial: { delay: number; name: string; msg: string }[]; aulaId?: string }) {
   const [linhas, setLinhas] = useState<Linha[]>(() =>
     inicial.length
       ? inicial.map(r => ({ id: nextId(), tempo: String(r.delay), nome: r.name, mensagem: r.msg }))
@@ -43,7 +43,7 @@ export function RoteiroEditor({ inicial }: { inicial: { delay: number; name: str
     setSalvando(true); setMsg('')
     const r = await fetch('/api/admin/aula/roteiro', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ linhas: linhas.filter(l => l.nome.trim() || l.mensagem.trim() || l.tempo.trim()).map(({ tempo, nome, mensagem }) => ({ tempo, nome, mensagem })) }),
+      body: JSON.stringify({ aulaId, linhas: linhas.filter(l => l.nome.trim() || l.mensagem.trim() || l.tempo.trim()).map(({ tempo, nome, mensagem }) => ({ tempo, nome, mensagem })) }),
     })
     const j = await r.json()
     setSalvando(false)

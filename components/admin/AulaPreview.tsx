@@ -68,7 +68,7 @@ export function AulaPreview({ cfg }: AulaPreviewProps) {
         <div style={{ background: '#0F0F0F' }}>
           {oferta?.ativo === true ? (
             <div style={{ pointerEvents: 'none' }} aria-hidden>
-              <OfferCard oferta={oferta} aulaDate="preview" />
+              <OfferCard oferta={oferta} aulaDate="preview" aulaId="preview" />
             </div>
           ) : (
             <p

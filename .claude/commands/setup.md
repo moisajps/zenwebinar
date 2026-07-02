@@ -87,6 +87,7 @@ Aplique em ordem usando o plugin Supabase (MCP) ou o dashboard Supabase (SQL Edi
 | `supabase/migrations/004_aula_config.sql` | `aula_config` (configuração do webinar) |
 | `supabase/migrations/005_aula_roteiro.sql` | `aula_roteiro` (roteiro do chat automático) |
 | `supabase/migrations/006_schema_migrations.sql` | `schema_migrations` (registro p/ atualizações incrementais) |
+| `supabase/migrations/007_multi_aula.sql` | `schema_migrations→aulas` (multi-aula) |
 
 > A migration `006` cria a tabela de controle e **registra** as anteriores como
 > aplicadas. É o que permite, depois, o comando `/atualizar` rodar só as migrations
