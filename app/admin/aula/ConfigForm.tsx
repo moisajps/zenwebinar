@@ -90,7 +90,7 @@ const spanCls = 'admin-muted text-sm'
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
+export function ConfigForm({ inicial, aulaId }: { inicial: AulaConfig; aulaId?: string }) {
   const [cfg, setCfg] = useState<AulaConfig>({
     ...inicial,
     oferta: inicial.oferta ?? defaultOferta,
@@ -106,7 +106,7 @@ export function ConfigForm({ inicial }: { inicial: AulaConfig }) {
     const r = await fetch('/api/admin/aula/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cfg),
+      body: JSON.stringify({ ...cfg, aulaId: aulaId ?? cfg.id }),
     })
     setSalvando(false)
     setMsg(r.ok ? 'Salvo!' : 'Erro ao salvar')
